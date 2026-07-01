@@ -28,6 +28,7 @@ for (const relative of [
   'js/data/assets.js',
   'js/core/engine.js',
   'js/core/service.js',
+  'js/core/lineup.js',
 ]) {
   const filename = path.join(ROOT, relative);
   vm.runInContext(fs.readFileSync(filename, 'utf8'), context, { filename });
@@ -40,6 +41,15 @@ const assets = context.HBAAssets;
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function canonicalPlayerName(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
 }
 
 function createUserRoster() {
@@ -130,6 +140,16 @@ test('chosen players are removed from later draft options', () => {
   }
 });
 
+
+test('name variants are treated as the same player only during draws and league generation', () => {
+  const allNames = [...new Set(database.equipes.flatMap((team) => team.elenco.map((player) => player.nome)))];
+  const hazmitKey = canonicalPlayerName('hazmitBoy');
+  const excluded = allNames.filter((name) => canonicalPlayerName(name) !== hazmitKey);
+  excluded.push('hazmitBoy');
+
+  assert.throws(() => engine.sortearEquipe(excluded), /Não há mais jogadores disponíveis/);
+});
+
 test('generated league has six teams, balanced conferences and five rounds', () => {
   for (let index = 0; index < 200; index += 1) {
     const roster = createUserRoster();
@@ -163,7 +183,13 @@ test('generated league has six teams, balanced conferences and five rounds', () 
     for (const total of appearances.values()) assert.equal(total, 5);
 
     const allNames = league.equipes.flatMap((team) => team.elenco.map((player) => player.nome));
+    const canonicalNames = allNames.map(canonicalPlayerName);
     assert.equal(new Set(allNames).size, allNames.length);
+    assert.equal(new Set(canonicalNames).size, canonicalNames.length);
+
+    for (const cpuTeam of league.equipes.filter((team) => !team.usuario)) {
+      assert.ok(cpuTeam.overall >= 88 && cpuTeam.overall <= 90);
+    }
   }
 });
 
@@ -192,6 +218,152 @@ test('playoff series always ends exactly at the requested win target', () => {
       assert.equal(series.jogos.length, series.vitoriasA + series.vitoriasB);
     }
   }
+});
+
+test('difficulty progresses from normal regular season to medium playoffs and hard finals', () => {
+  const regular = engine.obterPerfilDificuldade('REGULAR');
+  const playoffs = engine.obterPerfilDificuldade('PLAYOFFS');
+  const finals = engine.obterPerfilDificuldade('FINALS');
+
+  assert.equal(regular.nome, 'Normal');
+  assert.equal(playoffs.nome, 'Médio');
+  assert.equal(finals.nome, 'Difícil');
+  assert.ok(regular.bonusUsuario - regular.bonusCpu > playoffs.bonusUsuario - playoffs.bonusCpu);
+  assert.ok(playoffs.bonusUsuario - playoffs.bonusCpu > finals.bonusUsuario - finals.bonusCpu);
+});
+
+
+
+test('selected players can move only between compatible lineup roles', () => {
+  const lineup = context.HBALineup;
+  const pf = { nome: 'PF Teste', posicao: 'PF', overall: 90, funcao: 'WING' };
+  const roster = { ARMADOR: null, WING: pf, BIG: null, '4th': null };
+
+  const moved = lineup.reposicionar(roster, 'WING', 'BIG');
+  assert.equal(moved.ok, true);
+  assert.equal(moved.roster.WING, null);
+  assert.equal(moved.roster.BIG.nome, 'PF Teste');
+  assert.equal(moved.roster.BIG.funcao, 'BIG');
+  assert.equal(roster.WING.nome, 'PF Teste', 'Original roster must not be mutated.');
+
+  const invalid = lineup.reposicionar(moved.roster, 'BIG', 'ARMADOR');
+  assert.equal(invalid.ok, false);
+  assert.equal(invalid.roster.BIG.nome, 'PF Teste');
+});
+
+test('occupied lineup roles swap only when both players fit their new roles', () => {
+  const lineup = context.HBALineup;
+  const validRoster = {
+    ARMADOR: null,
+    WING: { nome: 'PF A', posicao: 'PF', overall: 88, funcao: 'WING' },
+    BIG: { nome: 'PF B', posicao: 'PF', overall: 89, funcao: 'BIG' },
+    '4th': null,
+  };
+  const validSwap = lineup.reposicionar(validRoster, 'WING', 'BIG');
+  assert.equal(validSwap.ok, true);
+  assert.equal(validSwap.roster.WING.nome, 'PF B');
+  assert.equal(validSwap.roster.BIG.nome, 'PF A');
+
+  const invalidRoster = {
+    ARMADOR: null,
+    WING: { nome: 'PF', posicao: 'PF', overall: 88, funcao: 'WING' },
+    BIG: { nome: 'C', posicao: 'C', overall: 89, funcao: 'BIG' },
+    '4th': null,
+  };
+  const invalidSwap = lineup.reposicionar(invalidRoster, 'WING', 'BIG');
+  assert.equal(invalidSwap.ok, false);
+  assert.equal(invalidSwap.roster.WING.nome, 'PF');
+  assert.equal(invalidSwap.roster.BIG.nome, 'C');
+});
+
+test('audio controller supports login autoplay, numbered tracks and synchronized volume controls', async () => {
+  const audioPath = path.join(ROOT, 'js/core/audio.js');
+  const htmlPath = path.join(ROOT, 'index.html');
+  const audioSource = fs.readFileSync(audioPath, 'utf8');
+  const htmlSource = fs.readFileSync(htmlPath, 'utf8');
+
+  const storage = new Map();
+  const symbols = [{ textContent: '' }, { textContent: '' }];
+  const toggles = symbols.map((symbol) => ({
+    classList: { toggle() {} },
+    querySelector() { return symbol; },
+    setAttribute() {},
+    title: '',
+  }));
+  const ranges = [
+    { value: '28', setAttribute() {}, title: '' },
+    { value: '28', setAttribute() {}, title: '' },
+  ];
+  const outputs = [{ textContent: '' }, { textContent: '' }];
+  const documentMock = {
+    readyState: 'complete',
+    documentElement: { lang: 'pt-BR' },
+    addEventListener() {},
+    querySelectorAll(selector) {
+      if (selector === '[data-audio-toggle]') return toggles;
+      if (selector === '[data-audio-volume]') return ranges;
+      if (selector === '[data-audio-volume-value]') return outputs;
+      return [];
+    },
+  };
+
+  class AudioMock {
+    constructor(src) {
+      this.src = src;
+      this.attributes = { src };
+      this.volume = 1;
+      this.currentTime = 0;
+      this.listeners = new Map();
+      this.error = null;
+    }
+    addEventListener(name, handler) { this.listeners.set(name, handler); }
+    getAttribute(name) { return this.attributes[name] || null; }
+    setAttribute(name, value) { this.attributes[name] = value; }
+    removeAttribute(name) { delete this.attributes[name]; }
+    load() {}
+    pause() {}
+    play() { return Promise.resolve(); }
+  }
+
+  const numbered = new Set([
+    'assets/trilha sonora/trilha-principal.mp3',
+    'assets/trilha sonora/trilha-principal1.mp3',
+    'assets/trilha sonora/trilha-principal2.mp3',
+  ]);
+  const audioContext = {
+    console,
+    document: documentMock,
+    Promise,
+    Object,
+    Array,
+    Number,
+    String,
+    Boolean,
+    Set,
+    Map,
+    Date,
+    Error,
+  };
+  audioContext.window = {
+    Audio: AudioMock,
+    fetch: async (source) => ({ ok: numbered.has(String(source)) }),
+    localStorage: {
+      getItem(key) { return storage.has(key) ? storage.get(key) : null; },
+      setItem(key, value) { storage.set(key, String(value)); },
+    },
+  };
+  vm.createContext(audioContext);
+  vm.runInContext(audioSource, audioContext, { filename: audioPath });
+
+  const audio = audioContext.window.HBAAudio;
+  const playlist = await audio.descobrirPlaylist();
+  assert.deepEqual(Array.from(playlist), Array.from(numbered));
+  audio.definirVolume(0.47);
+  assert.equal(storage.get('hba_music_volume'), '0.47');
+  assert.deepEqual(ranges.map((range) => range.value), ['47', '47']);
+  assert.deepEqual(outputs.map((output) => output.textContent), ['47%', '47%']);
+  assert.equal((htmlSource.match(/data-audio-volume/g) || []).length >= 2, true);
+  assert.equal((htmlSource.match(/data-audio-toggle/g) || []).length >= 2, true);
 });
 
 test('service layer exposes the engine asynchronously', async () => {

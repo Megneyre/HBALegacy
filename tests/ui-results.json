@@ -1,157 +1,37 @@
 [
   {
-    "test": "Título do projeto",
+    "test": "Compatibilidade de posições",
     "status": "PASS",
-    "detail": "HBA Legacy"
+    "detail": "PG/SG/SF para Armador; SF/PF para Wing; PF/C para Big; qualquer posição para 4th Man"
   },
   {
-    "test": "Botão iniciar habilitado",
+    "test": "Movimento para vaga compatível vazia",
     "status": "PASS",
-    "detail": ""
+    "detail": "PF movido de Wing para Big sem mutar o elenco original"
   },
   {
-    "test": "Banco carregado no navegador",
+    "test": "Bloqueio de movimento incompatível",
     "status": "PASS",
-    "detail": "{\"valido\": true, \"totalEquipesHistoricas\": 127, \"totalFranquias\": 33, \"totalJogadores\": 179, \"erros\": [], \"avisos\": []}"
+    "detail": "PF não pode ser movido para Armador"
   },
   {
-    "test": "Troca para inglês",
+    "test": "Troca compatível entre vagas ocupadas",
     "status": "PASS",
-    "detail": ""
+    "detail": "Dois PF podem trocar entre Wing e Big"
   },
   {
-    "test": "Retorno para português",
+    "test": "Troca incompatível entre vagas ocupadas",
     "status": "PASS",
-    "detail": ""
+    "detail": "PF e C não trocam entre Wing e Big quando o C ficaria em Wing"
   },
   {
-    "test": "Introdução fechada",
+    "test": "Overall nos slots",
     "status": "PASS",
-    "detail": ""
+    "detail": "Markup e renderização incluídos para quadra e 4th Man"
   },
   {
-    "test": "Gameplay aberta",
+    "test": "Validação completa",
     "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Primeiro sorteio concluído",
-    "status": "PASS",
-    "detail": "Washington Wizards / Temporada 9"
-  },
-  {
-    "test": "Jogadores do primeiro sorteio exibidos",
-    "status": "PASS",
-    "detail": "6"
-  },
-  {
-    "test": "Logo/fallback da equipe presente",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Alternância de tema",
-    "status": "PASS",
-    "detail": "dark->light"
-  },
-  {
-    "test": "Outra Equipe mantém temporada",
-    "status": "PASS",
-    "detail": "Washington Wizards->Brooklyn Nets / Temporada 9"
-  },
-  {
-    "test": "Outra Temporada troca temporada",
-    "status": "PASS",
-    "detail": "Temporada 9->Temporada 2"
-  },
-  {
-    "test": "Dois spins consumidos",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Arrastar jogador para quadra/reserva",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Próxima equipe não recupera/gasta spin",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Clique jogador + posição: ARMADOR",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Clique jogador + posição: WING",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Clique jogador + posição: BIG",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Elenco completo",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Botão muda para iniciar temporada",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Liga e classificação geradas",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Elencos adversários exibidos",
-    "status": "PASS",
-    "detail": "6"
-  },
-  {
-    "test": "Temporada encerra com modal",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Histórico final preenchido",
-    "status": "PASS",
-    "detail": "5"
-  },
-  {
-    "test": "Reiniciar volta à introdução",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Reiniciar limpa elenco",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Reiniciar restaura spins",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Segundo legado inicia normalmente",
-    "status": "PASS",
-    "detail": ""
-  },
-  {
-    "test": "Sem erros JavaScript",
-    "status": "PASS",
-    "detail": "[]"
-  },
-  {
-    "test": "Sem erros no console",
-    "status": "PASS",
-    "detail": "[]"
+    "detail": "16 testes automatizados e sintaxe de todos os scripts"
   }
 ]

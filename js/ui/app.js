@@ -27,8 +27,8 @@
         guard: 'ARMADOR', empty: 'Vazio', reserve: 'Reserva', participants: 'Participantes', leagueRosters: 'Elencos da liga', sixTeams: '6 EQUIPES',
         rostersEmpty: 'Os elencos adversários aparecerão quando seu time estiver pronto.', teamHistory: 'Histórico da sua equipe', facedRosters: 'Elencos enfrentados', seasonPlayers: 'JOGADORES DA TEMPORADA', totalRecord: 'Campanha total',
         nameRequired: 'Digite um nome para sua equipe.', selectingTeam: 'Sorteando equipe...', searchingPlayers: 'Buscando jogadores disponíveis', seasonDash: 'Temporada --', loadingDraft: 'Carregando opções do draft...', dragHint: 'Arraste um jogador até uma posição da quadra ou clique nele e depois na posição desejada.',
-        historicalTeam: 'Equipe histórica', season: 'Temporada', selectPlayer: 'Selecione um jogador antes de escolher a posição.', slotAccepts: 'Este slot aceita {positions}.', anyPosition: 'qualquer posição',
-        duplicatePlayer: 'Esse jogador já está no seu elenco.', playerAdded: 'Jogador adicionado. Avance para uma nova equipe.', nextTeamLocked: 'Escolha e encaixe um jogador desta equipe antes de avançar.', generatingLeague: 'GERANDO LIGA...', simulating: 'SIMULANDO...', definingBracket: 'DEFININDO CHAVE...',
+        historicalTeam: 'Equipe histórica', season: 'Temporada', selectPlayer: 'Selecione um jogador antes de escolher a posição.', slotAccepts: 'Este slot aceita {positions}.', slotLocked: 'Esta posição já está ocupada. Arraste o jogador para outra função compatível.', slotReposition: 'Arraste para outra posição compatível.', slotSwapInvalid: 'Esses jogadores não podem trocar de função entre si.', anyPosition: 'qualquer posição',
+        duplicatePlayer: 'Esse jogador já está no seu elenco.', playerAdded: 'Jogador adicionado. Avance para uma nova equipe.', nextTeamLocked: 'Escolha e encaixe um jogador desta equipe antes de avançar.', musicOn: 'Desativar trilha sonora', musicOff: 'Ativar trilha sonora', generatingLeague: 'GERANDO LIGA...', simulating: 'SIMULANDO...', definingBracket: 'DEFININDO CHAVE...',
         wait: 'Aguarde', round: 'Rodada', of: 'de', series: 'Série', opponent: 'Adversário', playoffsBo3: 'Playoffs · Melhor de 3', finalsBo5: 'Finais · Melhor de 5', conferenceFinal: 'Final da Conferência {conference}', finalsTitle: 'Finais da HBA Legacy',
         top2: 'TOP 2 AVANÇAM', team: 'TIME', gamesShort: 'J', winsShort: 'V', lossesShort: 'D', you: 'VOCÊ', view: 'VER', bracket: 'Chave eliminatória', otherConference: 'Outra conferência', qualified: 'classificado',
         champion: 'Campeão da HBA Legacy', notThisTime: 'Não foi dessa vez', games: 'JOGOS', noGames: 'Nenhuma partida foi registrada.', leagueUnavailable: 'A liga não está disponível.', yourTeam: 'SUA EQUIPE',
@@ -44,8 +44,8 @@
         guard: 'GUARD', empty: 'Empty', reserve: 'Reserve', participants: 'Participants', leagueRosters: 'League rosters', sixTeams: '6 TEAMS',
         rostersEmpty: 'Opponent rosters will appear when your team is ready.', teamHistory: 'Your team history', facedRosters: 'Faced rosters', seasonPlayers: 'SEASON PLAYERS', totalRecord: 'Overall record',
         nameRequired: 'Enter a name for your team.', selectingTeam: 'Drawing team...', searchingPlayers: 'Searching available players', seasonDash: 'Season --', loadingDraft: 'Loading draft options...', dragHint: 'Drag a player onto a court position, or click the player and then the desired position.',
-        historicalTeam: 'Historic team', season: 'Season', selectPlayer: 'Select a player before choosing a position.', slotAccepts: 'This slot accepts {positions}.', anyPosition: 'any position',
-        duplicatePlayer: 'This player is already on your roster.', playerAdded: 'Player added. Move on to a new team.', nextTeamLocked: 'Choose and place one player from this team before moving on.', generatingLeague: 'GENERATING LEAGUE...', simulating: 'SIMULATING...', definingBracket: 'SETTING BRACKET...',
+        historicalTeam: 'Historic team', season: 'Season', selectPlayer: 'Select a player before choosing a position.', slotAccepts: 'This slot accepts {positions}.', slotLocked: 'This position is occupied. Drag the player to another compatible role.', slotReposition: 'Drag to another compatible position.', slotSwapInvalid: 'These players cannot swap roles with each other.', anyPosition: 'any position',
+        duplicatePlayer: 'This player is already on your roster.', playerAdded: 'Player added. Move on to a new team.', nextTeamLocked: 'Choose and place one player from this team before moving on.', musicOn: 'Mute soundtrack', musicOff: 'Enable soundtrack', generatingLeague: 'GENERATING LEAGUE...', simulating: 'SIMULATING...', definingBracket: 'SETTING BRACKET...',
         wait: 'Please wait', round: 'Round', of: 'of', series: 'Series', opponent: 'Opponent', playoffsBo3: 'Playoffs · Best of 3', finalsBo5: 'Finals · Best of 5', conferenceFinal: '{conference} Conference Final', finalsTitle: 'HBA Legacy Finals',
         top2: 'TOP 2 ADVANCE', team: 'TEAM', gamesShort: 'G', winsShort: 'W', lossesShort: 'L', you: 'YOU', view: 'VIEW', bracket: 'Playoff bracket', otherConference: 'Other conference', qualified: 'qualified',
         champion: 'HBA Legacy Champion', notThisTime: 'Not this time', games: 'GAMES', noGames: 'No games were recorded.', leagueUnavailable: 'The league is unavailable.', yourTeam: 'YOUR TEAM',
@@ -81,6 +81,9 @@
         if (game.playoff) renderBracket();
       }
       renderUserRoster();
+      if (window.HBAAudio && typeof window.HBAAudio.atualizarControle === 'function') {
+        window.HBAAudio.atualizarControle();
+      }
     }
 
     const interfaceState = {
@@ -93,6 +96,7 @@
       spins: 2,
       selectedDraftPlayer: null,
       draggedDraftPlayer: null,
+      draggedRosterSlot: null,
       userName: 'Seu Time',
       liga: null,
       rodadaAtual: 0,
@@ -128,6 +132,7 @@
 
       game._iniciandoLegado = true;
       game.fase = 'DRAFT';
+      if (window.HBAAudio) window.HBAAudio.iniciarTrilha();
       definirNomeUsuario(nomeDigitado || tr('defaultTeam'));
 
       if (button) {
@@ -209,6 +214,7 @@
     function prepararCarregamentoDraft() {
       game.selectedDraftPlayer = null;
       game.draggedDraftPlayer = null;
+      game.draggedRosterSlot = null;
       game.jogadorEscolhidoNaEquipeAtual = false;
       limparEstadoArrasteSlots();
       document.querySelectorAll('.player-row').forEach(function(row) { row.classList.remove('selected'); });
@@ -347,6 +353,7 @@
       game.draftAtual = { time: data.time, temporada: data.temporada, conferencia: data.conferencia };
       game.selectedDraftPlayer = null;
       game.draggedDraftPlayer = null;
+      game.draggedRosterSlot = null;
       game.jogadorEscolhidoNaEquipeAtual = false;
       document.getElementById('draft-team-name').innerText = data.time;
       document.getElementById('draft-team-meta').innerText = data.conferencia ? `${tr('conference')} ${data.conferencia}` : tr('historicalTeam');
@@ -397,6 +404,7 @@
 
         row.addEventListener('dragstart', function(event) {
           selecionarJogadorDraft(draftPlayer, row);
+          game.draggedRosterSlot = null;
           game.draggedDraftPlayer = draftPlayer;
           row.classList.add('dragging');
           if (event.dataTransfer) {
@@ -421,15 +429,11 @@
       return true;
     }
 
-    const POSICOES_VALIDAS_DRAFT = Object.freeze({
-      ARMADOR: ['PG', 'SG', 'SF'],
-      WING: ['SF', 'PF'],
-      BIG: ['PF', 'C'],
-      '4th': ['PG', 'SG', 'SF', 'PF', 'C']
-    });
+    const POSICOES_VALIDAS_DRAFT = window.HBALineup.POSICOES_VALIDAS;
 
     function selecionarJogadorDraft(player, row) {
       document.querySelectorAll('.player-row').forEach(element => element.classList.remove('selected'));
+      if (window.HBAAudio) window.HBAAudio.tocarEfeito('selecionar');
       if (row) row.classList.add('selected');
       game.selectedDraftPlayer = { ...player };
       ['ARMADOR', 'WING', 'BIG', '4th'].forEach(function(slotId) {
@@ -438,8 +442,16 @@
       });
     }
 
+    function jogadorCompativelComSlot(player, slotId) {
+      return window.HBALineup.jogadorCompativelComSlot(player, slotId);
+    }
+
     function jogadorPodeOcuparSlot(player, slotId) {
-      return Boolean(player && POSICOES_VALIDAS_DRAFT[slotId] && POSICOES_VALIDAS_DRAFT[slotId].includes(player.posicao));
+      return !game.roster[slotId] && jogadorCompativelComSlot(player, slotId);
+    }
+
+    function movimentoRosterValido(origemSlotId, destinoSlotId) {
+      return window.HBALineup.movimentoValido(game.roster, origemSlotId, destinoSlotId);
     }
 
 
@@ -482,18 +494,57 @@
         if (!slot || slot.dataset.dragConfigured === 'true') return;
         slot.dataset.dragConfigured = 'true';
 
+        slot.addEventListener('dragstart', function(event) {
+          const player = game.roster[slotId];
+          if (game.fase !== 'DRAFT' || !player) {
+            event.preventDefault();
+            return;
+          }
+          game.draggedRosterSlot = slotId;
+          game.draggedDraftPlayer = null;
+          game.selectedDraftPlayer = null;
+          document.querySelectorAll('.player-row.selected').forEach(element => element.classList.remove('selected'));
+          slot.classList.add('roster-dragging');
+          if (event.dataTransfer) {
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', `roster:${slotId}`);
+            const preview = criarPreviewArrasteJogador(player);
+            slot._hbaDragPreview = preview;
+            event.dataTransfer.setDragImage(preview, 36, 36);
+          }
+        });
+
+        slot.addEventListener('dragend', function() {
+          slot.classList.remove('roster-dragging');
+          removerPreviewArraste(slot);
+          game.draggedRosterSlot = null;
+          game.draggedDraftPlayer = null;
+          limparEstadoArrasteSlots();
+        });
+
         slot.addEventListener('dragenter', function(event) {
-          if (game.fase !== 'DRAFT' || !game.draggedDraftPlayer) return;
+          if (game.fase !== 'DRAFT') return;
+          const arrastandoRoster = Boolean(game.draggedRosterSlot);
+          const playerDraft = game.draggedDraftPlayer;
+          if (!arrastandoRoster && !playerDraft) return;
           event.preventDefault();
-          const valido = jogadorPodeOcuparSlot(game.draggedDraftPlayer, slotId);
+          const valido = arrastandoRoster
+            ? movimentoRosterValido(game.draggedRosterSlot, slotId)
+            : jogadorPodeOcuparSlot(playerDraft, slotId);
           slot.classList.toggle('drag-over', valido);
           slot.classList.toggle('drag-invalid', !valido);
         });
 
         slot.addEventListener('dragover', function(event) {
-          if (game.fase !== 'DRAFT' || !game.draggedDraftPlayer) return;
+          if (game.fase !== 'DRAFT') return;
+          const arrastandoRoster = Boolean(game.draggedRosterSlot);
+          const playerDraft = game.draggedDraftPlayer;
+          if (!arrastandoRoster && !playerDraft) return;
           event.preventDefault();
-          if (event.dataTransfer) event.dataTransfer.dropEffect = jogadorPodeOcuparSlot(game.draggedDraftPlayer, slotId) ? 'move' : 'none';
+          const valido = arrastandoRoster
+            ? movimentoRosterValido(game.draggedRosterSlot, slotId)
+            : jogadorPodeOcuparSlot(playerDraft, slotId);
+          if (event.dataTransfer) event.dataTransfer.dropEffect = valido ? 'move' : 'none';
         });
 
         slot.addEventListener('dragleave', function(event) {
@@ -504,18 +555,45 @@
         slot.addEventListener('drop', function(event) {
           event.preventDefault();
           event.stopPropagation();
+          const origemSlotId = game.draggedRosterSlot;
           const player = game.draggedDraftPlayer || game.selectedDraftPlayer;
           limparEstadoArrasteSlots();
+
+          if (origemSlotId) {
+            reposicionarJogadorNaQuadra(origemSlotId, slotId);
+            return;
+          }
           if (!player) return;
           alocarJogadorNoSlot(player, slotId);
         });
       });
     }
 
+    function reposicionarJogadorNaQuadra(origemSlotId, destinoSlotId) {
+      if (game.fase !== 'DRAFT' || !game.roster[origemSlotId]) return false;
+      if (origemSlotId === destinoSlotId) return false;
+      if (!movimentoRosterValido(origemSlotId, destinoSlotId)) {
+        alert(tr('slotSwapInvalid'));
+        return false;
+      }
+
+      const resultado = window.HBALineup.reposicionar(game.roster, origemSlotId, destinoSlotId);
+      if (!resultado.ok) return false;
+      game.roster = resultado.roster;
+
+      game.draggedRosterSlot = null;
+      game.draggedDraftPlayer = null;
+      if (window.HBAAudio) window.HBAAudio.tocarEfeito('encaixar');
+      renderUserRoster();
+      limparEstadoArrasteSlots();
+      return true;
+    }
+
     function consumirSpin(tipo) {
       if (game.spins <= 0 || game._draftCarregando || game._gerandoLiga) return false;
       if (tipo === 'mesma-temporada' && !game.draftAtual) return false;
       game.spins--;
+      if (window.HBAAudio) window.HBAAudio.tocarEfeito('spin');
       document.getElementById('spin-count').innerText = game.spins;
       atualizarBotoesDraft();
       solicitarEquipeDraft(tipo, { reembolsarSpin: true, origem: 'spin' });
@@ -532,6 +610,10 @@
 
     function alocarAtleta(slotId) {
       if (game.fase !== 'DRAFT') return false;
+      if (game.roster[slotId]) {
+        alert(tr('slotLocked'));
+        return false;
+      }
       const player = game.selectedDraftPlayer;
       if (!player) {
         alert(tr('selectPlayer'));
@@ -542,6 +624,11 @@
 
     function alocarJogadorNoSlot(player, slotId) {
       if (game.fase !== 'DRAFT' || !player) return false;
+
+      if (game.roster[slotId]) {
+        alert(tr('slotLocked'));
+        return false;
+      }
 
       if (!jogadorPodeOcuparSlot(player, slotId)) {
         alert(tr('slotAccepts', { positions: descricaoPosicoesSlot(slotId) }));
@@ -558,6 +645,7 @@
 
       game.roster[slotId] = { ...player, funcao: slotId === '4th' ? '4th MAN' : slotId };
       game.jogadorEscolhidoNaEquipeAtual = true;
+      if (window.HBAAudio) window.HBAAudio.tocarEfeito('encaixar');
       renderUserRoster();
       game.selectedDraftPlayer = null;
       game.draggedDraftPlayer = null;
@@ -575,8 +663,20 @@
       Object.keys(game.roster).forEach(slotId => {
         const player = game.roster[slotId];
         const slot = document.getElementById(`slot-${slotId}`);
-        slot.classList.toggle('occupied', Boolean(player));
-        slot.querySelector('.slot-name').innerText = player ? player.nome : tr('empty');
+        const occupied = Boolean(player);
+        slot.classList.toggle('occupied', occupied);
+        slot.disabled = false;
+        slot.draggable = occupied && game.fase === 'DRAFT';
+        slot.dataset.locked = occupied ? 'true' : 'false';
+        slot.setAttribute('aria-disabled', 'false');
+        slot.setAttribute('aria-grabbed', 'false');
+        slot.title = occupied ? tr('slotReposition') : '';
+        slot.querySelector('.slot-name').innerText = occupied ? player.nome : tr('empty');
+        const overallElement = slot.querySelector('.slot-ovr, .slot-ovr-inline');
+        if (overallElement) {
+          overallElement.textContent = occupied ? Number(player.overall) : '';
+          overallElement.hidden = !occupied;
+        }
       });
 
       const quantidade = getRosterArray().length;
@@ -960,6 +1060,7 @@
 
     function finalizarJogo(venceu, mensagem) {
       game.fase = 'FINAL';
+      if (window.HBAAudio) window.HBAAudio.tocarEfeito(venceu ? 'vitoria' : 'derrota');
       game.encerrado = true;
       const botao = document.getElementById('btn-play');
       if (botao) botao.disabled = true;
@@ -1092,6 +1193,7 @@
       document.getElementById('app-shell').classList.add('hidden');
       document.getElementById('welcome-screen').classList.remove('hidden');
       document.getElementById('welcome-team-name').focus();
+      if (window.HBAAudio) window.HBAAudio.iniciarTrilha();
     }
     function carregarInterface() {
       aplicarTema(storageGet('hba_theme', 'dark') || 'dark');
@@ -1278,6 +1380,17 @@
       vincularUmaVez(document.getElementById('language-pt'), 'click', function() { definirIdioma('pt'); }, 'LanguagePt');
       vincularUmaVez(document.getElementById('language-en'), 'click', function() { definirIdioma('en'); }, 'LanguageEn');
       vincularUmaVez(document.getElementById('theme-toggle'), 'click', alternarTema, 'Theme');
+      document.querySelectorAll('[data-audio-toggle]').forEach(function(botao, indice) {
+        vincularUmaVez(botao, 'click', function() {
+          if (window.HBAAudio) window.HBAAudio.alternarAudio();
+        }, `AudioToggle${indice}`);
+      });
+      document.querySelectorAll('[data-audio-volume]').forEach(function(controle, indice) {
+        vincularUmaVez(controle, 'input', function(event) {
+          if (!window.HBAAudio) return;
+          window.HBAAudio.definirVolume(Number(event.currentTarget.value) / 100);
+        }, `AudioVolume${indice}`);
+      });
       vincularUmaVez(document.getElementById('btn-spin-season'), 'click', usarSpinOutraTemporada, 'SpinSeason');
       vincularUmaVez(document.getElementById('btn-spin-team'), 'click', usarSpinOutraEquipe, 'SpinTeam');
       vincularUmaVez(document.getElementById('btn-next-team'), 'click', proximaEquipe, 'NextTeam');

@@ -1,10 +1,10 @@
 {
   "name": "hba-legacy",
-  "version": "1.0.0-beta",
+  "version": "1.0.3-beta",
   "private": true,
   "description": "Minigame de draft histórico de basquete, temporada curta e playoffs.",
   "scripts": {
     "test": "node --test tests/engine.test.cjs",
-    "check": "node --check js/data/database.js && node --check js/data/assets.js && node --check js/core/engine.js && node --check js/core/service.js && node --check js/ui/app.js && npm test"
+    "check": "node --check js/data/database.js && node --check js/data/assets.js && node --check js/core/engine.js && node --check js/core/service.js && node --check js/core/lineup.js && node --check js/core/audio.js && node --check js/ui/app.js && npm test"
   }
 }

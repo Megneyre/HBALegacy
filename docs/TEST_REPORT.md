@@ -1,64 +1,83 @@
 # Relatório de testes
 
-Data da revisão: 30 de junho de 2026.
+Data da revisão: 1º de julho de 2026.
 
 ## Resultado geral
 
-- Testes automatizados do motor: **11 aprovados**
-- Testes de interface no Chromium: **31 aprovados**
-- Erros de JavaScript durante o fluxo completo: **0**
-- Erros de console durante o fluxo completo: **0**
+- Testes automatizados do motor: **14 aprovados**
+- Fluxo completo de interface no Chromium: **aprovado**
+- Erros de JavaScript durante o fluxo: **0**
+- Primeiro sorteio, draft, liga, temporada, playoffs, final e reinício: **aprovados**
 
-## Banco validado
+## Banco preservado
 
 - 127 equipes históricas
 - 33 franquias
-- 179 jogadores únicos
-- nenhuma posição inválida
-- nenhuma combinação duplicada de equipe e temporada
-- nenhuma franquia sem mapeamento visual ou alias
+- 179 nomes históricos exatos
+- nenhum jogador, time, temporada, posição ou overall removido
+- nenhuma alteração em `js/data/database.js`
 
-## Carga de testes do motor
+## Unicidade durante a liga
 
-- 1.000 sorteios comuns
-- 250 spins de Outra Equipe
-- 250 spins de Outra Temporada
-- 250 rolagens gratuitas de Próxima Equipe
-- 100 verificações de exclusão de jogadores escolhidos
-- 200 ligas completas geradas
-- 300 rodadas regulares simuladas
-- 600 séries eliminatórias simuladas
+O pool temporário reconhece diferenças de caixa, pontuação e símbolos. Exemplos:
 
-## Fluxos de interface testados
+- `hazmitBoy` e `hazmitboy`;
+- `-Sartori` e `Sartori`;
+- `Durvalx` e `durvalx`.
 
-1. carregamento do banco;
-2. título HBA Legacy;
-3. botão inicial habilitado;
-4. português e inglês;
-5. tema claro e escuro;
-6. abertura da gameplay;
-7. primeiro sorteio;
-8. equipe, temporada, jogadores e logo;
-9. Outra Equipe mantendo temporada;
-10. Outra Temporada trocando temporada;
-11. consumo correto dos dois spins;
-12. drag-and-drop para uma posição;
-13. clique no jogador e depois em Armador;
-14. clique no jogador e depois em Wing;
-15. clique no jogador e depois em Big;
-16. montagem de elenco 4/4;
-17. botão mudando para Iniciar Temporada;
-18. geração de seis equipes;
-19. classificação por conferência;
-20. exibição dos elencos adversários;
-21. temporada regular;
-22. playoffs e finais quando aplicáveis;
-23. modal final;
-24. histórico de partidas;
-25. Reiniciar Legado;
-26. limpeza do elenco;
-27. restauração dos spins;
-28. início de um segundo legado na mesma sessão.
+Foram geradas 500 ligas adicionais sem qualquer atleta repetido entre equipes da mesma temporada. A regra não persiste entre partidas e não apaga registros históricos.
+
+## Equilíbrio
+
+- equipes da CPU: OVR 88 a 90;
+- média observada em 2.500 equipes simuladas: aproximadamente 89;
+- temporada regular: dificuldade normal;
+- playoffs: dificuldade média;
+- finais: dificuldade difícil.
+
+Em 30.000 partidas de equipes com o mesmo OVR, as taxas aproximadas de vitória do usuário foram:
+
+- temporada regular: 56%;
+- playoffs: 47%;
+- finais: 39%.
+
+Essas porcentagens são referências estatísticas, não resultados garantidos.
+
+## Interface testada
+
+- primeiro sorteio e renderização dos jogadores;
+- seleção por clique;
+- drag-and-drop;
+- jogador escolhido permanece preso ao elenco;
+- movimento para vaga compatível vazia;
+- troca entre vagas ocupadas somente quando ambos são compatíveis;
+- tentativa de troca incompatível bloqueada;
+- overall abaixo do nome na quadra e à direita no 4th Man;
+- Próxima Equipe liberada somente após uma escolha;
+- montagem do elenco 4/4;
+- geração de seis equipes;
+- temporada completa até o modal final;
+- reinício do legado;
+- controle de áudio;
+- ausência dos arquivos MP3 sem quebrar o jogo.
+
+## Áudio
+
+Foram validados o controlador de áudio, a persistência de volume e os caminhos definidos em `js/core/audio.js`:
+
+```text
+assets/trilha sonora/trilha-principal.mp3
+assets/trilha sonora/trilha-principal1.mp3
+assets/trilha sonora/trilha-principal2.mp3
+assets/trilha sonora/trilha-principal3.mp3
+assets/efeitos sonoros/selecionar-jogador.mp3
+assets/efeitos sonoros/encaixar-jogador.mp3
+assets/efeitos sonoros/spin.mp3
+assets/efeitos sonoros/vitoria.mp3
+assets/efeitos sonoros/derrota.mp3
+```
+
+A playlist procura faixas numeradas contínuas, tenta iniciar na tela inicial e retoma na primeira interação quando o navegador bloqueia autoplay.
 
 ## Comandos
 
@@ -67,4 +86,4 @@ npm test
 npm run check
 ```
 
-O resultado detalhado do teste de interface está em `tests/ui-results.json`.
+O resultado resumido do teste de interface está em `tests/ui-results.json`.

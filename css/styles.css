@@ -1043,3 +1043,133 @@
     .court-project-logo img { transform: none !important; }
     body[data-theme="light"] .project-logo-frame,
     body[data-theme="dark"] .project-logo-frame { filter: none; }
+
+/* Áudio */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+.audio-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.audio-button { overflow: hidden; }
+.audio-toggle-symbol {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: #ffd28a;
+  font-size: 22px;
+  line-height: 1;
+  text-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+.audio-button.muted .audio-toggle-symbol {
+  color: #9aabc1;
+  opacity: .72;
+}
+.volume-control {
+  min-width: 138px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 9px;
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 10px;
+  background: rgba(255,255,255,.07);
+}
+.volume-range {
+  width: 92px;
+  height: 4px;
+  margin: 0;
+  accent-color: var(--orange);
+  cursor: pointer;
+}
+.volume-value {
+  min-width: 31px;
+  color: #dbe4f2;
+  font-size: 9px;
+  font-weight: 850;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.welcome-audio-controls {
+  position: absolute;
+  z-index: 4;
+  right: 22px;
+  bottom: 22px;
+  padding: 6px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 13px;
+  background: rgba(7,16,30,.62);
+  backdrop-filter: blur(10px);
+}
+.welcome-audio-controls .icon-button {
+  border-color: rgba(255,255,255,.10);
+  background: rgba(255,255,255,.06);
+}
+.welcome-audio-controls .volume-control {
+  border: 0;
+  background: transparent;
+}
+.header-audio-controls { gap: 7px; }
+.compact-volume-control { min-width: 132px; }
+
+@media (max-width: 780px) {
+  .header-audio-controls { width: 100%; }
+  .compact-volume-control { flex: 1; max-width: 230px; }
+  .compact-volume-control .volume-range { flex: 1; width: auto; }
+}
+
+@media (max-width: 560px) {
+  .welcome-audio-controls {
+    right: 15px;
+    bottom: 15px;
+  }
+  .welcome-audio-controls .volume-control {
+    min-width: 118px;
+  }
+  .welcome-audio-controls .volume-range { width: 72px; }
+}
+
+/* Jogadores escolhidos ficam presos à quadra, mas podem mudar de função por arraste. */
+.slot.occupied[data-locked="true"],
+.bench-slot.occupied[data-locked="true"] {
+  opacity: 1;
+  cursor: grab;
+  filter: saturate(.94);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+}
+.slot.occupied[data-locked="true"]:active,
+.bench-slot.occupied[data-locked="true"]:active { cursor: grabbing; }
+.slot.roster-dragging,
+.bench-slot.roster-dragging { opacity: .5; }
+.slot-ovr {
+  margin-top: 3px;
+  color: #ffd2ad;
+  font-size: 9px;
+  font-weight: 950;
+  line-height: 1;
+}
+.bench-player-info {
+  min-width: 0;
+  margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.slot-ovr-inline {
+  color: var(--orange-dark);
+  font-size: 9px;
+  font-weight: 950;
+  line-height: 1;
+}

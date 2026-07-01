@@ -28,11 +28,12 @@ Esta versão foi organizada para funcionar como site estático no GitHub e na Ve
 5. Um jogador pode ser colocado de duas formas:
    - clicar no jogador e depois na posição;
    - arrastar o jogador até a posição na quadra.
-6. Depois de preencher as quatro vagas, o botão principal passa a iniciar a temporada.
-7. A liga possui seis equipes, três por conferência, e cinco rodadas de temporada regular.
-8. As duas melhores equipes de cada conferência avançam.
-9. A final de conferência é melhor de três e as finais são melhor de cinco.
-10. Ao final, o jogo exibe campanha, partidas e elencos enfrentados.
+6. Depois de escolhido, o atleta fica preso ao elenco e não pode ser removido da quadra. Ele pode ser arrastado para outra função compatível. Se o destino estiver ocupado, a troca só acontece quando os dois jogadores puderem cumprir as funções invertidas.
+7. Depois de preencher as quatro vagas, o botão principal passa a iniciar a temporada.
+8. A liga possui seis equipes, três por conferência, e cinco rodadas de temporada regular.
+9. As duas melhores equipes de cada conferência avançam.
+10. A final de conferência é melhor de três e as finais são melhor de cinco.
+11. Ao final, o jogo exibe campanha, partidas e elencos enfrentados.
 
 ## Tipos de sorteio
 
@@ -65,7 +66,11 @@ HBA-Legacy/
 ├── CHANGELOG.md
 ├── .gitignore
 ├── assets/
-│   └── hba-legacy-logo.png
+│   ├── hba-legacy-logo.png
+│   ├── trilha sonora/
+│   │   └── README.md
+│   └── efeitos sonoros/
+│       └── README.md
 ├── css/
 │   └── styles.css
 ├── js/
@@ -74,7 +79,9 @@ HBA-Legacy/
 │   │   └── assets.js
 │   ├── core/
 │   │   ├── engine.js
-│   │   └── service.js
+│   │   ├── service.js
+│   │   ├── lineup.js
+│   │   └── audio.js
 │   └── ui/
 │       └── app.js
 ├── docs/
@@ -93,7 +100,9 @@ O `index.html` carrega os arquivos nesta ordem:
 2. `js/data/assets.js`
 3. `js/core/engine.js`
 4. `js/core/service.js`
-5. `js/ui/app.js`
+5. `js/core/lineup.js`
+6. `js/core/audio.js`
+7. `js/ui/app.js`
 
 Essa ordem é obrigatória. A interface só é habilitada depois que banco, assets e motor passam pela validação inicial.
 
@@ -115,7 +124,7 @@ Ele contém:
 
 - 127 equipes históricas
 - 33 franquias
-- 179 jogadores únicos
+- 179 nomes históricos exatos no banco
 - posições aceitas: PG, SG, SF, PF e C
 
 A migração não alterou os dados de jogadores, equipes, temporadas ou overalls do ZIP recebido. Foi adicionada apenas uma interface de leitura ao final do arquivo.
@@ -165,7 +174,8 @@ Motor puro do jogo. Responsável por:
 - sorteios;
 - exclusão de jogadores já escolhidos;
 - geração da liga;
-- montagem dos elencos adversários;
+- montagem dos elencos adversários sem repetir o mesmo jogador em equipes diferentes da mesma temporada;
+- dificuldade progressiva: temporada regular normal, playoffs médios e finais difíceis;
 - calendário;
 - placares;
 - séries de playoffs;
@@ -188,15 +198,63 @@ HBAService.simularPartidaEliminatoria()
 HBAService.simularSerieCpu()
 ```
 
+### `lineup.js`
+
+Centraliza as regras de compatibilidade das funções, movimentação entre posições e trocas seguras entre jogadores já escolhidos. Nenhum movimento remove um atleta do elenco.
+
+### `audio.js`
+
+Controla a trilha sonora, efeitos, preferência de áudio, volume e os botões de som das telas inicial e de gameplay. O sistema tenta iniciar a música assim que a tela inicial abre. Quando o navegador bloqueia autoplay com som, a reprodução é retomada na primeira interação do usuário.
+
+A playlist aceita uma faixa principal e faixas numeradas contínuas:
+
+```text
+assets/trilha sonora/trilha-principal.mp3
+assets/trilha sonora/trilha-principal1.mp3
+assets/trilha sonora/trilha-principal2.mp3
+assets/trilha sonora/trilha-principal3.mp3
+```
+
+As músicas são tocadas em sequência e retornam à primeira ao terminar. A numeração deve ser contínua, sem pular números. O volume e o estado ligado/desligado ficam salvos no `localStorage`.
+
+Efeitos esperados:
+
+```text
+assets/efeitos sonoros/selecionar-jogador.mp3
+assets/efeitos sonoros/encaixar-jogador.mp3
+assets/efeitos sonoros/spin.mp3
+assets/efeitos sonoros/vitoria.mp3
+assets/efeitos sonoros/derrota.mp3
+```
+
+Use apenas arquivos próprios ou licenciados para jogos e publicação web. A pasta `assets` pode ser mantida separadamente ao atualizar apenas o código.
+
 ### `app.js`
 
-Controla telas, botões, estado da partida, tradução, tema, renderização, drag-and-drop e reinício.
+Controla telas, botões, estado da partida, tradução, tema, renderização, drag-and-drop, reposicionamento visual, áudio e reinício.
 
 Todos os controles são ligados por `addEventListener`. Não existem `onclick` inline nem gatilhos do Google Apps Script.
 
 ### `styles.css`
 
 Contém todo o visual, responsividade, quadra, cards, modais, temas e estados de drag-and-drop.
+
+## Equilíbrio e unicidade dos adversários
+
+O banco histórico permanece intacto. Durante a geração de uma liga, o motor cria uma chave temporária normalizada para reconhecer variações como `hazmitBoy` e `hazmitboy` como a mesma pessoa.
+
+Essa regra vale somente para a temporada atual:
+
+- um atleta não pode aparecer em duas equipes da mesma liga;
+- o atleta continua disponível normalmente em uma nova temporada;
+- nenhuma entrada é apagada ou alterada em `database.js`;
+- equipes da CPU ficam, em regra, entre OVR 88 e 90.
+
+Dificuldade por fase:
+
+- temporada regular: normal;
+- primeira fase dos playoffs: média;
+- finais: difícil.
 
 ## Estado e persistência
 
@@ -206,7 +264,8 @@ O `localStorage` guarda apenas:
 
 - idioma;
 - tema;
-- nome atual da equipe.
+- nome atual da equipe;
+- preferência de áudio ligado ou desligado.
 
 A campanha, elenco e temporada ainda não são persistidos.
 
@@ -292,6 +351,8 @@ js/data/database.js
 js/data/assets.js
 js/core/engine.js
 js/core/service.js
+js/core/lineup.js
+js/core/audio.js
 js/ui/app.js
 ```
 

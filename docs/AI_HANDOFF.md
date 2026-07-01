@@ -14,13 +14,16 @@ Manter e expandir o HBA Legacy sem quebrar o banco histórico ou os fluxos de in
 6. A interface deve acessar o motor por `HBAService`.
 7. O botão de início deve abrir o draft e disparar um único primeiro sorteio.
 8. Jogadores precisam continuar selecionáveis por clique e por drag-and-drop.
-9. Não modificar jogadores, equipes, temporadas, posições ou overalls sem pedido explícito.
-10. Rodar `npm run check` após qualquer alteração.
+9. Um jogador escolhido fica preso ao elenco. Ele pode mudar para outra função compatível por drag-and-drop, mas nunca pode ser removido da quadra.
+10. Jogadores podem existir em várias equipes históricas do banco, mas não podem aparecer em duas equipes da mesma liga gerada. Comparar nomes por chave normalizada.
+11. Não modificar jogadores, equipes, temporadas, posições ou overalls sem pedido explícito.
+12. O áudio é opcional e deve falhar silenciosamente se os arquivos não estiverem presentes.
+13. Rodar `npm run check` após qualquer alteração.
 
 ## Dependências entre arquivos
 
 ```text
-database.js -> assets.js -> engine.js -> service.js -> app.js
+database.js -> assets.js -> engine.js -> service.js -> lineup.js -> audio.js -> app.js
 ```
 
 `index.html` usa `defer` e preserva essa ordem.
@@ -42,7 +45,9 @@ database.js -> assets.js -> engine.js -> service.js -> app.js
 - Alterar a ordem dos scripts impede o botão inicial de ser registrado.
 - Renderizar jogadores fora de `renderDraftTeam` remove listeners de clique e arraste.
 - Criar listeners duplicados pode disparar sorteios repetidos.
+- Alterar `lineup.js` sem preservar a compatibilidade pode remover jogadores ou permitir trocas inválidas.
 - Mudar os IDs dos slots exige atualizar `POSICOES_VALIDAS_DRAFT` e os listeners.
+- Deduplicar diretamente `database.js` apaga história; a unicidade deve existir apenas no pool temporário da liga.
 - Alterar o formato do banco exige atualizar a normalização no motor.
 
 ## Critério mínimo de aceite
@@ -53,7 +58,10 @@ database.js -> assets.js -> engine.js -> service.js -> app.js
 - Próxima Equipe é gratuita;
 - clique jogador + posição funciona;
 - drag-and-drop funciona;
+- jogador escolhido não pode sair da quadra e só pode mudar para função compatível;
 - quatro jogadores iniciam a temporada;
+- nenhum jogador aparece em duas equipes da mesma liga;
+- perfis de dificuldade seguem Regular normal, Playoffs médio e Finais difícil;
 - cinco rodadas são simuladas;
 - playoffs encerram a campanha;
 - Reiniciar Legado volta à introdução e permite novo jogo;

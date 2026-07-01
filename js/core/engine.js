@@ -22,6 +22,37 @@ function normalizarNomeTime_(nomeUsuario) {
 }
 
 
+const PERFIS_DIFICULDADE_HBA = Object.freeze({
+  REGULAR: Object.freeze({
+    nome: 'Normal',
+    bonusUsuario: 0.6,
+    bonusCpu: 0,
+    pesoOverall: 2.05,
+    variacao: 9.5
+  }),
+  PLAYOFFS: Object.freeze({
+    nome: 'Médio',
+    bonusUsuario: 0.5,
+    bonusCpu: 0.75,
+    pesoOverall: 2.15,
+    variacao: 8.5
+  }),
+  FINALS: Object.freeze({
+    nome: 'Difícil',
+    bonusUsuario: 0,
+    bonusCpu: 0.8,
+    pesoOverall: 2.2,
+    variacao: 8
+  })
+});
+
+function obterPerfilDificuldade(fase) {
+  const chave = String(fase || 'REGULAR').toUpperCase();
+  const perfil = PERFIS_DIFICULDADE_HBA[chave] || PERFIS_DIFICULDADE_HBA.REGULAR;
+  return { ...perfil };
+}
+
+
 /**
  * Valida o nome e devolve a primeira equipe do draft em uma única execução.
  * Isso evita que o front-end marque o jogo como iniciado antes do sorteio.
@@ -88,7 +119,9 @@ function sortearEquipeMesmaTemporada(nomesExcluidos, temporadaAtual, equipeAtual
 
 function criarSetExcluidos_(nomesExcluidos) {
   const lista = Array.isArray(nomesExcluidos) ? nomesExcluidos : [];
-  return new Set(lista.map(function(nome) { return String(nome || '').trim(); }));
+  return new Set(lista.map(function(nome) {
+    return normalizarChaveJogador_(nome);
+  }).filter(Boolean));
 }
 
 function listarEquipesDraftValidas_(excluidos) {
@@ -100,7 +133,7 @@ function listarEquipesDraftValidas_(excluidos) {
     if (!equipe || !Array.isArray(equipe.elenco)) return false;
     return equipe.elenco.some(function(jogador) {
       if (!jogador || !jogador.nome) return false;
-      return !excluidos.has(String(jogador.nome).trim());
+      return !excluidos.has(normalizarChaveJogador_(jogador.nome));
     });
   });
 }
@@ -110,7 +143,7 @@ function formatarEquipeDraft_(equipe, excluidos) {
   const jogadores = equipe.elenco
     .filter(function(jogador) { 
       if (!jogador || !jogador.nome) return false;
-      return !excluidos.has(String(jogador.nome).trim()); 
+      return !excluidos.has(normalizarChaveJogador_(jogador.nome)); 
     })
     .map(function(jogador) {
       return {
@@ -159,7 +192,9 @@ function gerarLigaTemporada(nomeUsuario, rosterUsuario) {
     throw new Error('A equipe do jogador precisa ter exatamente quatro atletas.');
   }
 
-  const nomesUsuario = new Set(rosterLimpo.map(function(jogador) { return jogador.nome; }));
+  const nomesUsuario = new Set(rosterLimpo.map(function(jogador) {
+    return normalizarChaveJogador_(jogador.nome);
+  }));
   const conferenciaUsuario = Math.random() < 0.5 ? 'East' : 'West';
   const franquias = selecionarCincoFranquias_(conferenciaUsuario);
   const pool = criarPoolJogadores_(nomesUsuario);
@@ -208,6 +243,8 @@ function gerarLigaTemporada(nomeUsuario, rosterUsuario) {
     });
   });
 
+  validarUnicidadeElencosLiga_(equipes);
+
   return {
     nomeUsuario: nomeTimeUsuario,
     equipes: equipes,
@@ -227,7 +264,13 @@ function simularRodadaRegular(jogos, equipes) {
     const fora = porId[jogo.foraId];
     if (!casa || !fora) throw new Error('Uma equipe da rodada não foi encontrada.');
 
-    const placar = simularPlacar_(casa.overall, fora.overall, 'REGULAR');
+    const placar = simularPlacar_(
+      casa.overall,
+      fora.overall,
+      'REGULAR',
+      Boolean(casa.usuario),
+      Boolean(fora.usuario)
+    );
     return {
       casaId: casa.id,
       foraId: fora.id,
@@ -244,7 +287,13 @@ function simularPartidaEliminatoria(equipeUsuario, equipeAdversaria, fase) {
     throw new Error('Equipes inválidas para a partida eliminatória.');
   }
 
-  const placar = simularPlacar_(equipeUsuario.overall, equipeAdversaria.overall, fase || 'PLAYOFFS');
+  const placar = simularPlacar_(
+    equipeUsuario.overall,
+    equipeAdversaria.overall,
+    fase || 'PLAYOFFS',
+    true,
+    false
+  );
   return {
     casaId: equipeUsuario.id,
     foraId: equipeAdversaria.id,
@@ -303,39 +352,58 @@ function selecionarCincoFranquias_(conferenciaUsuario) {
 }
 
 function criarPoolJogadores_(nomesExcluidos) {
-  const melhoresPorNome = {};
+  const melhoresPorJogador = {};
 
   BANCO_CONSOLIDADO_HBA.forEach(function(equipe) {
     equipe.elenco.forEach(function(jogador) {
-      if (nomesExcluidos.has(jogador.nome)) return;
+      const chaveJogador = normalizarChaveJogador_(jogador.nome);
+      if (!chaveJogador || nomesExcluidos.has(chaveJogador)) return;
 
       const candidato = {
         nome: jogador.nome,
+        chaveJogador: chaveJogador,
         posicao: normalizarPosicao_(jogador.posicao),
         overall: Number(jogador.overall) || 82
       };
 
-      if (!melhoresPorNome[candidato.nome] || candidato.overall > melhoresPorNome[candidato.nome].overall) {
-        melhoresPorNome[candidato.nome] = candidato;
+      if (!melhoresPorJogador[chaveJogador] || candidato.overall > melhoresPorJogador[chaveJogador].overall) {
+        melhoresPorJogador[chaveJogador] = candidato;
       }
     });
   });
 
-  return embaralhar_(Object.keys(melhoresPorNome).map(function(nome) {
-    return melhoresPorNome[nome];
+  return embaralhar_(Object.keys(melhoresPorJogador).map(function(chaveJogador) {
+    return melhoresPorJogador[chaveJogador];
   }));
+}
+
+function validarUnicidadeElencosLiga_(equipes) {
+  const jogadoresUsados = new Map();
+
+  (equipes || []).forEach(function(equipe) {
+    (equipe.elenco || []).forEach(function(jogador) {
+      const chave = normalizarChaveJogador_(jogador.nome);
+      if (!chave) return;
+      if (jogadoresUsados.has(chave)) {
+        throw new Error(
+          'O jogador "' + jogador.nome + '" foi sorteado para mais de uma equipe na mesma temporada.'
+        );
+      }
+      jogadoresUsados.set(chave, equipe.id || equipe.nome);
+    });
+  });
 }
 
 /**
  * Monta um elenco de CPU competitivo e equilibrado.
  *
  * Perfil desejado por equipe:
- * - 1 estrela / muito bom: 94 a 95
- * - 1 jogador bom: 91 a 93
- * - 1 jogador médio: 88 a 90
- * - 1 peça fraca: 82 a 87
+ * - 1 estrela / muito bom: 93 a 95
+ * - 1 jogador bom: 90 a 92
+ * - 1 jogador médio: 87 a 89
+ * - 1 peça fraca: 81 a 86
  *
- * A combinação final procura uma média entre 89 e 91. As faixas são relativas
+ * A combinação final procura uma média entre 88 e 90. As faixas são relativas
  * ao banco histórico: o jogador "fraco" ainda pode ser útil, mas cria uma
  * vulnerabilidade real para impedir que todos os quatro atletas sejam estrelas.
  */
@@ -351,13 +419,13 @@ function gerarElencoCpu_(pool) {
   ];
 
   const perfisTitulares = [
-    { nome: 'MUITO BOM', minimo: 94, maximo: 95, alvo: 95 },
-    { nome: 'BOM', minimo: 91, maximo: 93, alvo: 92 },
-    { nome: 'MÉDIO', minimo: 88, maximo: 90, alvo: 89 }
+    { nome: 'MUITO BOM', minimo: 93, maximo: 95, alvo: 94 },
+    { nome: 'BOM', minimo: 90, maximo: 92, alvo: 91 },
+    { nome: 'MÉDIO', minimo: 87, maximo: 89, alvo: 88 }
   ];
 
   const todasPosicoes = ['PG', 'SG', 'SF', 'PF', 'C'];
-  const alvoMedia = 89 + Math.floor(Math.random() * 3); // 89, 90 ou 91
+  const alvoMedia = 88 + Math.floor(Math.random() * 3); // 88, 89 ou 90
   let melhorFormacao = null;
   let melhorPontuacao = Infinity;
 
@@ -402,12 +470,12 @@ function gerarElencoCpu_(pool) {
     }, 0);
 
     // O reserva é selecionado por último e funciona como contrapeso da equipe.
-    const alvoReserva = limitarNumero_((alvoMedia * 4) - somaTitulares, 82, 87);
+    const alvoReserva = limitarNumero_((alvoMedia * 4) - somaTitulares, 81, 86);
     const reserva = selecionarJogadorCpu_(
       disponiveis,
       todasPosicoes,
-      82,
-      87,
+      81,
+      86,
       alvoReserva
     );
 
@@ -427,12 +495,12 @@ function gerarElencoCpu_(pool) {
 
     // Prioridade absoluta: ficar dentro da faixa de desafio pedida.
     // Depois, aproximar-se da média-alvo sorteada para diferenciar as equipes.
-    const foraDaFaixa = media < 89 || media > 91;
+    const foraDaFaixa = media < 88 || media > 90;
     const distanciaMedia = Math.abs(media - alvoMedia);
     const distanciaPerfis = formacao.reduce(function(total, jogador) {
-      const alvo = jogador.nivelCpu === 'MUITO BOM' ? 95
-        : jogador.nivelCpu === 'BOM' ? 92
-        : jogador.nivelCpu === 'MÉDIO' ? 89
+      const alvo = jogador.nivelCpu === 'MUITO BOM' ? 94
+        : jogador.nivelCpu === 'BOM' ? 91
+        : jogador.nivelCpu === 'MÉDIO' ? 88
         : alvoReserva;
       return total + Math.abs(jogador.overall - alvo);
     }, 0);
@@ -569,13 +637,26 @@ function gerarCalendarioTurnoUnico_(ids) {
   return rodadas;
 }
 
-function simularPlacar_(overallA, overallB, fase) {
-  const pesoFase = fase === 'FINALS' ? 1.12 : fase === 'PLAYOFFS' ? 1.06 : 1;
-  const variacaoA = Math.random() * 18 - 9;
-  const variacaoB = Math.random() * 18 - 9;
+function simularPlacar_(overallA, overallB, fase, equipeAUsuario, equipeBUsuario) {
+  const perfil = obterPerfilDificuldade(fase);
+  let overallAjustadoA = Number(overallA) || 82;
+  let overallAjustadoB = Number(overallB) || 82;
 
-  let pontosA = Math.round(68 + ((Number(overallA) - 75) * 2.15 * pesoFase) + variacaoA);
-  let pontosB = Math.round(68 + ((Number(overallB) - 75) * 2.15 * pesoFase) + variacaoB);
+  // Os bônus existem somente quando uma das equipes é controlada pelo jogador.
+  // Partidas CPU x CPU continuam neutras e usam apenas os overalls dos elencos.
+  if (equipeAUsuario) {
+    overallAjustadoA += perfil.bonusUsuario;
+    overallAjustadoB += perfil.bonusCpu;
+  } else if (equipeBUsuario) {
+    overallAjustadoB += perfil.bonusUsuario;
+    overallAjustadoA += perfil.bonusCpu;
+  }
+
+  const variacaoA = Math.random() * (perfil.variacao * 2) - perfil.variacao;
+  const variacaoB = Math.random() * (perfil.variacao * 2) - perfil.variacao;
+
+  let pontosA = Math.round(68 + ((overallAjustadoA - 75) * perfil.pesoOverall) + variacaoA);
+  let pontosB = Math.round(68 + ((overallAjustadoB - 75) * perfil.pesoOverall) + variacaoB);
 
   pontosA = Math.max(55, Math.min(125, pontosA));
   pontosB = Math.max(55, Math.min(125, pontosB));
@@ -586,6 +667,15 @@ function simularPlacar_(overallA, overallB, fase) {
   }
 
   return { pontosA: pontosA, pontosB: pontosB };
+}
+
+function normalizarChaveJogador_(nome) {
+  return String(nome || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
 }
 
 function normalizarPosicao_(posicao) {
@@ -662,5 +752,6 @@ window.HBAEngine = Object.freeze({
   simularRodadaRegular: simularRodadaRegular,
   simularPartidaEliminatoria: simularPartidaEliminatoria,
   simularSerieCpu: simularSerieCpu,
+  obterPerfilDificuldade: obterPerfilDificuldade,
   validarBanco: validarBancoHBA
 });

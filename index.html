@@ -25,6 +25,17 @@
       </button>
     </div>
 
+    <div class="audio-controls welcome-audio-controls" aria-label="Controles da trilha sonora">
+      <button class="icon-button audio-button" id="welcome-audio-toggle" type="button" data-audio-toggle aria-label="Desativar trilha sonora" title="Desativar trilha sonora" aria-pressed="true">
+        <span class="audio-toggle-symbol" data-audio-symbol aria-hidden="true">♫</span>
+      </button>
+      <label class="volume-control">
+        <span class="sr-only">Volume da trilha sonora</span>
+        <input class="volume-range" type="range" min="0" max="100" step="1" value="28" data-audio-volume aria-label="Volume da trilha sonora">
+        <output class="volume-value" data-audio-volume-value>28%</output>
+      </label>
+    </div>
+
     <div class="welcome-card">
       <div class="welcome-logo-wrap">
         <img id="welcome-logo" class="welcome-logo" src="assets/hba-legacy-logo.png" alt="HBA Legacy">
@@ -63,6 +74,16 @@
           <div class="top-chip"><span data-i18n="spins">Spins</span><strong id="spin-count">2</strong></div>
         </div>
         <div class="header-actions">
+          <div class="audio-controls header-audio-controls" aria-label="Controles da trilha sonora">
+            <button class="icon-button audio-button" id="audio-toggle" type="button" data-audio-toggle aria-label="Desativar trilha sonora" title="Desativar trilha sonora" aria-pressed="true">
+              <span class="audio-toggle-symbol" data-audio-symbol aria-hidden="true">♫</span>
+            </button>
+            <label class="volume-control compact-volume-control">
+              <span class="sr-only">Volume da trilha sonora</span>
+              <input class="volume-range" type="range" min="0" max="100" step="1" value="28" data-audio-volume aria-label="Volume da trilha sonora">
+              <output class="volume-value" data-audio-volume-value>28%</output>
+            </label>
+          </div>
           <button class="icon-button theme-button" id="theme-toggle" type="button" aria-label="Alternar tema claro e escuro" title="Alternar tema claro e escuro">
             <span id="theme-toggle-fallback" class="theme-toggle-symbol" aria-hidden="true">☀</span>
           </button>
@@ -156,13 +177,13 @@
               <img src="assets/hba-legacy-logo.png" alt="">
             </div>
             <button class="slot" id="slot-ARMADOR" type="button">
-              <span class="slot-role" data-i18n="guard">ARMADOR</span><span class="slot-name" data-i18n="empty">Vazio</span>
+              <span class="slot-role" data-i18n="guard">ARMADOR</span><span class="slot-name" data-i18n="empty">Vazio</span><span class="slot-ovr" hidden></span>
             </button>
             <button class="slot" id="slot-WING" type="button">
-              <span class="slot-role">WING</span><span class="slot-name" data-i18n="empty">Vazio</span>
+              <span class="slot-role">WING</span><span class="slot-name" data-i18n="empty">Vazio</span><span class="slot-ovr" hidden></span>
             </button>
             <button class="slot" id="slot-BIG" type="button">
-              <span class="slot-role">BIG · PF/C</span><span class="slot-name" data-i18n="empty">Vazio</span>
+              <span class="slot-role">BIG · PF/C</span><span class="slot-name" data-i18n="empty">Vazio</span><span class="slot-ovr" hidden></span>
             </button>
           </div>
         </div>
@@ -170,7 +191,7 @@
         <div class="bench-area">
           <button class="bench-slot" id="slot-4th" type="button">
             <span><strong style="display:block; font-size:11px;">4TH MAN</strong><span style="color:var(--muted); font-size:10px;" data-i18n="reserve">Reserva</span></span>
-            <span class="slot-name" style="width:auto; color:var(--text);" data-i18n="empty">Vazio</span>
+            <span class="bench-player-info"><span class="slot-name" style="width:auto; color:var(--text);" data-i18n="empty">Vazio</span><span class="slot-ovr-inline" hidden></span></span>
           </button>
         </div>
       </section>
@@ -227,6 +248,8 @@
   <script defer src="js/data/assets.js"></script>
   <script defer src="js/core/engine.js"></script>
   <script defer src="js/core/service.js"></script>
+  <script defer src="js/core/lineup.js"></script>
+  <script defer src="js/core/audio.js"></script>
   <script defer src="js/ui/app.js"></script>
 </body>
 </html>
