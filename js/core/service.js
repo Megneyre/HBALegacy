@@ -38,8 +38,8 @@
     sortearEquipeMesmaTemporada: function(nomesExcluidos, temporadaAtual, equipeAtual) {
       return executar('sortearEquipeMesmaTemporada', [nomesExcluidos, temporadaAtual, equipeAtual]);
     },
-    gerarLigaTemporada: function(nomeUsuario, rosterUsuario) {
-      return executar('gerarLigaTemporada', [nomeUsuario, rosterUsuario]);
+    gerarLigaTemporada: function(nomeUsuario, rosterUsuario, logoUsuario) {
+      return executar('gerarLigaTemporada', [nomeUsuario, rosterUsuario, logoUsuario]);
     },
     simularRodadaRegular: function(jogos, equipes) {
       return executar('simularRodadaRegular', [jogos, equipes]);

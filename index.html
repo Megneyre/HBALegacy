@@ -14,7 +14,7 @@
   <section id="welcome-screen" class="welcome-screen" aria-labelledby="welcome-title">
     <div class="welcome-glow"></div>
 
-    <small class="welcome-version">Versão Beta 1.0</small>
+    <small class="welcome-version">Versão Beta 1.1</small>
 
     <div class="language-switcher" aria-label="Idioma">
       <button class="language-button" id="language-pt" type="button" aria-label="Português" title="Jogar em Português">
@@ -43,9 +43,29 @@
       </div>
 
       <div class="welcome-form" id="welcome-form">
-        <label id="welcome-title" class="welcome-label" for="welcome-team-name" data-i18n="welcomeTeamName">Nome do seu Time</label>
-        <input id="welcome-team-name" type="text" maxlength="25" autocomplete="off" data-i18n-placeholder="welcomePlaceholder" placeholder="Digite o nome da sua equipe">
-        <button class="welcome-start" id="welcome-start-button" type="button" data-i18n="startLegacy">Iniciar Legado</button>
+        <div id="welcome-name-step" class="welcome-step">
+          <label id="welcome-title" class="welcome-label" for="welcome-team-name" data-i18n="welcomeTeamName">Nome do seu Time</label>
+          <input id="welcome-team-name" type="text" maxlength="25" autocomplete="off" data-i18n-placeholder="welcomePlaceholder" placeholder="Digite o nome da sua equipe">
+          <button class="welcome-start" id="welcome-logo-next" type="button" data-i18n="chooseLogo">Escolher Logo</button>
+        </div>
+
+        <div id="welcome-logo-step" class="welcome-step hidden">
+          <div class="welcome-logo-step-header">
+            <div>
+              <span class="welcome-label" data-i18n="logoSelectionTitle">Escolha o logo do seu time</span>
+              <p class="welcome-logo-hint" data-i18n="logoSelectionHint">Você poderá usar este escudo durante toda a temporada.</p>
+            </div>
+            <button class="welcome-back" id="welcome-logo-back" type="button" data-i18n="backToName">Voltar</button>
+          </div>
+          <div class="team-logo-category" role="tablist" aria-label="Tipo de logo">
+            <button id="logo-category-originals" class="team-logo-category-button active" type="button" role="tab" aria-selected="true" data-logo-category="originais" data-i18n="originalLogos">Logos Originais</button>
+            <button id="logo-category-nba" class="team-logo-category-button" type="button" role="tab" aria-selected="false" data-logo-category="nba" data-i18n="nbaLogos">Logos da NBA</button>
+          </div>
+          <p id="team-logo-category-note" class="team-logo-category-note" data-i18n="originalLogosHint">Escudos exclusivos do HBA Legacy.</p>
+          <div id="team-logo-grid" class="team-logo-grid" role="radiogroup" aria-label="Logos disponíveis"></div>
+          <button class="welcome-start" id="welcome-start-button" type="button" data-i18n="startLegacy">Iniciar Legado</button>
+        </div>
+
         <div id="welcome-start-status" class="welcome-start-status" aria-live="polite"></div>
         <small class="welcome-credit" data-i18n="credit">Por Efésius Drumond</small>
       </div>
@@ -68,7 +88,7 @@
 
       <div style="display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap;">
         <div class="top-stats hidden" id="top-bar">
-          <div class="top-chip"><span data-i18n="franchise">Franquia</span><strong id="display-team-name">--</strong></div>
+          <div class="top-chip top-chip-franchise"><img id="display-team-logo" class="display-team-logo" src="" alt="" hidden><span data-i18n="franchise">Franquia</span><strong id="display-team-name">--</strong></div>
           <div class="top-chip"><span data-i18n="overall">Overall</span><strong id="team-ovr">--</strong></div>
           <div class="top-chip"><span data-i18n="conference">Conferência</span><strong id="team-conference">--</strong></div>
           <div class="top-chip"><span data-i18n="spins">Spins</span><strong id="spin-count">2</strong></div>
@@ -246,6 +266,7 @@
   </div>
   <script defer src="js/data/database.js"></script>
   <script defer src="js/data/assets.js"></script>
+  <script defer src="js/data/user-logos.js"></script>
   <script defer src="js/core/engine.js"></script>
   <script defer src="js/core/service.js"></script>
   <script defer src="js/core/lineup.js"></script>

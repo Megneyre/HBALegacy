@@ -7,7 +7,7 @@ Esta versão foi organizada para funcionar como site estático no GitHub e na Ve
 ## Estado do projeto
 
 - Título oficial: **HBA Legacy**
-- Versão exibida: **Beta 1.0**
+- Versão exibida: **Beta 1.1**
 - Execução: navegador, sem build obrigatório
 - Hospedagem recomendada: Vercel conectada ao GitHub
 - Banco atual: arquivo JavaScript versionado no repositório
@@ -17,23 +17,24 @@ Esta versão foi organizada para funcionar como site estático no GitHub e na Ve
 
 ## Como o jogo funciona
 
-1. O jogador informa o nome da equipe e clica em **Iniciar Legado**.
-2. O jogo abre a tela de draft e realiza imediatamente o primeiro sorteio.
-3. Cada sorteio mostra uma equipe histórica, sua temporada, logo e jogadores disponíveis.
-4. O jogador monta quatro posições:
+1. O jogador informa o nome da equipe.
+2. O jogador escolhe um dos 12 escudos neutros locais.
+3. Ao clicar em **Iniciar Legado**, o jogo abre o draft e realiza imediatamente o primeiro sorteio.
+4. Cada sorteio mostra uma equipe histórica, sua temporada, logo e jogadores disponíveis.
+5. O jogador monta quatro posições:
    - Armador: PG, SG ou SF
    - Wing: SF ou PF
    - Big: PF ou C
    - 4th Man: qualquer posição
-5. Um jogador pode ser colocado de duas formas:
+6. Um jogador pode ser colocado de duas formas:
    - clicar no jogador e depois na posição;
    - arrastar o jogador até a posição na quadra.
-6. Depois de escolhido, o atleta fica preso ao elenco e não pode ser removido da quadra. Ele pode ser arrastado para outra função compatível. Se o destino estiver ocupado, a troca só acontece quando os dois jogadores puderem cumprir as funções invertidas.
-7. Depois de preencher as quatro vagas, o botão principal passa a iniciar a temporada.
-8. A liga possui seis equipes, três por conferência, e cinco rodadas de temporada regular.
-9. As duas melhores equipes de cada conferência avançam.
-10. A final de conferência é melhor de três e as finais são melhor de cinco.
-11. Ao final, o jogo exibe campanha, partidas e elencos enfrentados.
+7. Depois de escolhido, o atleta fica preso ao elenco e não pode ser removido da quadra. Ele pode ser arrastado para outra função compatível. Se o destino estiver ocupado, a troca só acontece quando os dois jogadores puderem cumprir as funções invertidas.
+8. Depois de preencher as quatro vagas, o botão principal passa a iniciar a temporada.
+9. A liga possui seis equipes, três por conferência, e cinco rodadas de temporada regular.
+10. As duas melhores equipes de cada conferência avançam.
+11. A final de conferência é melhor de três e as finais são melhor de cinco.
+12. Ao final, o jogo exibe campanha, partidas e elencos enfrentados.
 
 ## Tipos de sorteio
 
@@ -67,6 +68,9 @@ HBA-Legacy/
 ├── .gitignore
 ├── assets/
 │   ├── hba-legacy-logo.png
+│   ├── team-logos/
+│   │   ├── wolf.png
+│   │   └── ...
 │   ├── trilha sonora/
 │   │   └── README.md
 │   └── efeitos sonoros/
@@ -76,7 +80,8 @@ HBA-Legacy/
 ├── js/
 │   ├── data/
 │   │   ├── database.js
-│   │   └── assets.js
+│   │   ├── assets.js
+│   │   └── user-logos.js
 │   ├── core/
 │   │   ├── engine.js
 │   │   ├── service.js
@@ -86,6 +91,7 @@ HBA-Legacy/
 │       └── app.js
 ├── docs/
 │   ├── AI_HANDOFF.md
+│   ├── DATABASE_AUDIT.md
 │   └── TEST_REPORT.md
 └── tests/
     ├── engine.test.cjs
@@ -98,11 +104,12 @@ O `index.html` carrega os arquivos nesta ordem:
 
 1. `js/data/database.js`
 2. `js/data/assets.js`
-3. `js/core/engine.js`
-4. `js/core/service.js`
-5. `js/core/lineup.js`
-6. `js/core/audio.js`
-7. `js/ui/app.js`
+3. `js/data/user-logos.js`
+4. `js/core/engine.js`
+5. `js/core/service.js`
+6. `js/core/lineup.js`
+7. `js/core/audio.js`
+8. `js/ui/app.js`
 
 Essa ordem é obrigatória. A interface só é habilitada depois que banco, assets e motor passam pela validação inicial.
 
@@ -116,7 +123,9 @@ js/data/database.js
 
 Ele contém:
 
-- `PERFIS_HISTORICOS_HBA`: atributos e métricas históricas por jogador;
+- `PERFIS_HISTORICOS_ORIGINAIS_HBA`: os 179 registros de nome exatamente como existiam na base antiga;
+- `ALIASES_JOGADORES_HBA`: mapeamento entre variações de nome e identidade canônica;
+- `PERFIS_HISTORICOS_HBA`: 153 identidades canônicas consolidadas;
 - `BANCO_CONSOLIDADO_HBA`: equipes, temporadas, elencos, posições e overalls;
 - `window.HBADatabase`: interface de leitura usada pelo motor e pelos testes.
 
@@ -124,10 +133,12 @@ Ele contém:
 
 - 127 equipes históricas
 - 33 franquias
-- 179 nomes históricos exatos no banco
+- 701 aparições de jogadores preservadas nos elencos
+- 179 registros de nome originais preservados para auditoria
+- 153 identidades canônicas após consolidar 26 aliases
 - posições aceitas: PG, SG, SF, PF e C
 
-A migração não alterou os dados de jogadores, equipes, temporadas ou overalls do ZIP recebido. Foi adicionada apenas uma interface de leitura ao final do arquivo.
+A consolidação não remove jogadores de equipes, não troca temporadas e não altera overalls. Ela apenas substitui variações comprovadamente equivalentes pelo mesmo nome canônico nos elencos. Nomes com ponto, como `Seth.MacTravish` e `CiroNeto.`, foram preservados como forma oficial.
 
 ### Estrutura de uma equipe
 
@@ -166,6 +177,10 @@ Fonte de dados histórica. Não possui lógica de interface.
 ### `assets.js`
 
 Mapeia franquias, conferências, siglas, logos e recursos visuais da interface. Franquias antigas usam aliases para suas sucessoras quando necessário.
+
+### `user-logos.js`
+
+Lista os 12 escudos neutros locais disponíveis para a equipe do jogador. Os PNGs ficam em `assets/team-logos/` e não dependem de serviços externos.
 
 ### `engine.js`
 
@@ -241,13 +256,13 @@ Contém todo o visual, responsividade, quadra, cards, modais, temas e estados de
 
 ## Equilíbrio e unicidade dos adversários
 
-O banco histórico permanece intacto. Durante a geração de uma liga, o motor cria uma chave temporária normalizada para reconhecer variações como `hazmitBoy` e `hazmitboy` como a mesma pessoa.
+O banco mantém todas as 701 aparições históricas. Os aliases conhecidos já são consolidados no próprio `database.js`, e o motor ainda cria uma chave normalizada de segurança durante a geração da liga.
 
 Essa regra vale somente para a temporada atual:
 
 - um atleta não pode aparecer em duas equipes da mesma liga;
 - o atleta continua disponível normalmente em uma nova temporada;
-- nenhuma entrada é apagada ou alterada em `database.js`;
+- nenhuma aparição histórica é apagada; os aliases ficam registrados em `ALIASES_JOGADORES_HBA`;
 - equipes da CPU ficam, em regra, entre OVR 88 e 90.
 
 Dificuldade por fase:
@@ -265,7 +280,8 @@ O `localStorage` guarda apenas:
 - idioma;
 - tema;
 - nome atual da equipe;
-- preferência de áudio ligado ou desligado.
+- preferência de áudio ligado ou desligado;
+- escudo escolhido para a equipe.
 
 A campanha, elenco e temporada ainda não são persistidos.
 
@@ -349,6 +365,7 @@ Verifique no console se algum dos arquivos abaixo retornou 404:
 ```text
 js/data/database.js
 js/data/assets.js
+js/data/user-logos.js
 js/core/engine.js
 js/core/service.js
 js/core/lineup.js
@@ -402,6 +419,7 @@ Essa separação permite usar Supabase, PostgreSQL ou funções da Vercel sem re
 ## Recursos visuais e direitos
 
 - A logo do HBA Legacy está em `assets/hba-legacy-logo.png`.
+- Os 12 escudos neutros do jogador são PNGs locais em `assets/team-logos/` e foram criados para este projeto.
 - Os logos das franquias são carregados por URLs externas e pertencem aos respectivos titulares.
 - Alguns ícones usam OpenMoji conforme indicado em `assets.js`.
 - Antes de uma publicação comercial, revise licenças e permissões de todos os recursos de terceiros.
@@ -413,7 +431,7 @@ Ao editar este projeto:
 - não reintroduza Google Apps Script;
 - não crie uma emulação de `google.script.run`;
 - não mova o banco para dentro do HTML;
-- não altere nomes, posições, temporadas ou overalls sem solicitação explícita;
+- preserve `ALIASES_JOGADORES_HBA`, os 179 perfis originais e as 701 aparições históricas;
 - mantenha o primeiro sorteio dentro do fluxo de `iniciarLegado`;
 - use `HBAService` para qualquer operação do motor;
 - preserve as duas formas de escalação, clique e drag-and-drop;

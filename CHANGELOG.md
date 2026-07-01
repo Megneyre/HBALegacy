@@ -1,5 +1,16 @@
 # Changelog
 
+## Beta 1.1 - banco consolidado e escolha de escudo
+
+- reconstrução do banco a partir da base histórica anterior à migração;
+- preservação das 127 equipes e 701 aparições de jogadores;
+- armazenamento dos 179 perfis originais para auditoria;
+- consolidação de 26 aliases em 153 identidades canônicas;
+- preservação de nomes oficiais com pontos;
+- escolha de um entre 12 escudos neutros após informar o nome do time;
+- escudo do jogador exibido no cabeçalho, classificação e elencos da liga;
+- assets locais, sem dependência de banco externo de logos.
+
 
 ## 1.0.3-beta
 

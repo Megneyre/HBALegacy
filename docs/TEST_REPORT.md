@@ -4,22 +4,27 @@ Data da revisão: 1º de julho de 2026.
 
 ## Resultado geral
 
-- Testes automatizados do motor: **14 aprovados**
+- Testes automatizados do motor: **18 aprovados**
 - Fluxo completo de interface no Chromium: **aprovado**
 - Erros de JavaScript durante o fluxo: **0**
 - Primeiro sorteio, draft, liga, temporada, playoffs, final e reinício: **aprovados**
 
-## Banco preservado
+## Banco reconstruído e auditado
 
-- 127 equipes históricas
-- 33 franquias
-- 179 nomes históricos exatos
-- nenhum jogador, time, temporada, posição ou overall removido
-- nenhuma alteração em `js/data/database.js`
+- 127 equipes históricas;
+- 33 franquias;
+- 701 aparições de jogadores preservadas;
+- 179 perfis de nome originais preservados para auditoria;
+- 153 identidades canônicas;
+- 26 aliases consolidados;
+- nenhuma equipe, temporada, posição, overall ou aparição removida;
+- 42 ocorrências tiveram somente o texto do nome padronizado.
+
+O relatório completo está em `docs/DATABASE_AUDIT.md`.
 
 ## Unicidade durante a liga
 
-O pool temporário reconhece diferenças de caixa, pontuação e símbolos. Exemplos:
+O banco já usa nomes canônicos, e o pool temporário mantém uma segunda camada de normalização de segurança. Exemplos:
 
 - `hazmitBoy` e `hazmitboy`;
 - `-Sartori` e `Sartori`;
@@ -45,6 +50,9 @@ Essas porcentagens são referências estatísticas, não resultados garantidos.
 
 ## Interface testada
 
+- etapa de nome e seleção de 12 escudos;
+- persistência do escudo escolhido;
+- escudo exibido no cabeçalho e preservado na liga;
 - primeiro sorteio e renderização dos jogadores;
 - seleção por clique;
 - drag-and-drop;

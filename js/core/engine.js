@@ -21,6 +21,19 @@ function normalizarNomeTime_(nomeUsuario) {
   return nome;
 }
 
+function normalizarLogoUsuario_(logoUsuario) {
+  const caminho = String(logoUsuario || '').trim();
+  if (/^assets\/team-logos\/[a-z0-9-]+\.png$/i.test(caminho)) return caminho;
+  return '';
+}
+
+function criarSiglaTime_(nome) {
+  const palavras = String(nome || '').trim().split(/\s+/).filter(Boolean);
+  if (!palavras.length) return 'HBA';
+  if (palavras.length === 1) return palavras[0].slice(0, 3).toUpperCase();
+  return palavras.slice(0, 3).map(function(palavra) { return palavra[0]; }).join('').toUpperCase();
+}
+
 
 const PERFIS_DIFICULDADE_HBA = Object.freeze({
   REGULAR: Object.freeze({
@@ -173,8 +186,9 @@ function formatarEquipeDraft_(equipe, excluidos) {
     jogadores: jogadores
   };
 }
-function gerarLigaTemporada(nomeUsuario, rosterUsuario) {
+function gerarLigaTemporada(nomeUsuario, rosterUsuario, logoUsuario) {
   const nomeTimeUsuario = normalizarNomeTime_(nomeUsuario);
+  const logoTimeUsuario = normalizarLogoUsuario_(logoUsuario);
   const rosterLimpo = (rosterUsuario || []).map(function(jogador) {
     return {
       nome: String(jogador.nome || ''),
@@ -206,9 +220,9 @@ function gerarLigaTemporada(nomeUsuario, rosterUsuario) {
   const equipes = [{
     id: 'USER',
     nome: nomeTimeUsuario,
-    sigla: 'HBA',
+    sigla: criarSiglaTime_(nomeTimeUsuario),
     conferencia: conferenciaUsuario,
-    logo: '',
+    logo: logoTimeUsuario,
     overall: overallUsuario,
     elenco: rosterLimpo,
     usuario: true,
@@ -736,6 +750,9 @@ function validarBancoHBA() {
     totalEquipesHistoricas: BANCO_CONSOLIDADO_HBA.length,
     totalFranquias: new Set(BANCO_CONSOLIDADO_HBA.map(function(equipe) { return equipe.time; })).size,
     totalJogadores: jogadores.size,
+    totalPerfisOriginais: window.HBADatabase && window.HBADatabase.perfisOriginais ? Object.keys(window.HBADatabase.perfisOriginais).length : jogadores.size,
+    totalAliases: window.HBADatabase && window.HBADatabase.aliases ? Object.keys(window.HBADatabase.aliases).length : 0,
+    totalAparicoesHistoricas: BANCO_CONSOLIDADO_HBA.reduce(function(total, equipe) { return total + equipe.elenco.length; }, 0),
     erros: erros,
     avisos: avisos
   };

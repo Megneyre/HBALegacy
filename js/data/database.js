@@ -1,20 +1,49 @@
 /**
  * BANCO DE DADOS HBA - RATINGS HISTÓRICOS E SAZONAIS
  *
- * Escala: 79 a 95 | Centro da liga: aproximadamente 85
- * 1) overallBase considera estatísticas de todos os tempos, premiações individuais
- *    e feitos do Double-Digit Tracker, com retorno decrescente e correção por amostra.
- * 2) overall aplica campanha da equipe, colocação, fase alcançada e forma individual
- *    determinística para criar auges e temporadas ruins.
- * 3) Elencos dominantes preservam hierarquia: apenas um atleta ocupa o maior overall.
+ * Base reconstruída a partir do banco histórico anterior à migração para Vercel.
+ * Nenhuma participação em equipe foi removida: os 127 registros de equipes e as
+ * 701 aparições de jogadores foram preservados. Apenas aliases comprovadamente
+ * equivalentes foram unificados para que a mesma pessoa use um nome canônico.
+ *
+ * Regra de pontuação e ratings original preservada.
  */
 
-const PERFIS_HISTORICOS_HBA = Object.freeze({
+const ALIASES_JOGADORES_HBA = Object.freeze({
+  "Durvalx": "durvalx",
+  "Durval": "durvalx",
+  "durval": "durvalx",
+  "Mutucka": "mutucka",
+  "Tico012": "tico012",
+  "Sartori": "-Sartori",
+  "hendersonha": "hendersonha.",
+  "Tree,": "Tree.",
+  "Jameican": "Jameican.",
+  "-Ipod,Russo": "-Ipod,Russo.",
+  "SethMacTravish": "Seth.MacTravish",
+  "NatsuDragnnel": "-NatsuDragnnel",
+  "hazmitboy": "hazmitBoy",
+  "Cironeto.": "CiroNeto.",
+  "CiroNeto": "CiroNeto.",
+  ":JaviMartinez": "JaviMartinez",
+  "JamesHarden": "James-Harden",
+  "jet": "jet_",
+  "@!LM": "!LM",
+  "LM!": "!LM",
+  "Dududusao": "dududusao",
+  "AntiChrist": "Antichrist",
+  "mikadunker": "mikedunker",
+  "Splikek": "Spliked",
+  "jackakka404": "jackkaka404",
+  "hbateamo": "rbateamo"
+});
+
+const PERFIS_HISTORICOS_ORIGINAIS_HBA = Object.freeze({
   "!LM": {
     "overallBase": 87,
     "pontuacaoEstatistica": 0.6655,
     "pontuacaoPremiacoes": 16.2,
-    "pontuacaoFeitos": 7.0,
+    "pontuacaoFeitos": 7,
     "jogosRegistrados": 23,
     "premiacoes": {
       "HBA Champion": 1,
@@ -34,9 +63,9 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "!Lon.doN!": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 1.55,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "premiacoes": {
       "HBA Champion": 1,
       "Finals Appearances": 1
@@ -46,20 +75,20 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 79,
     "pontuacaoEstatistica": 0.323,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 1
   },
   ",Fiver": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "-Ipod,Russo": {
     "overallBase": 86,
     "pontuacaoEstatistica": 0.4866,
     "pontuacaoPremiacoes": 20.5,
-    "pontuacaoFeitos": 3.0,
+    "pontuacaoFeitos": 3,
     "jogosRegistrados": 64,
     "premiacoes": {
       "HBA Champion": 2,
@@ -85,7 +114,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 86,
     "pontuacaoEstatistica": 0.4866,
     "pontuacaoPremiacoes": 20.5,
-    "pontuacaoFeitos": 3.0,
+    "pontuacaoFeitos": 3,
     "jogosRegistrados": 64,
     "premiacoes": {
       "HBA Champion": 2,
@@ -111,14 +140,14 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 79,
     "pontuacaoEstatistica": 0.3518,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 2
   },
   "-NatsuDragnnel": {
     "overallBase": 90,
     "pontuacaoEstatistica": 0.7366,
     "pontuacaoPremiacoes": 101.05,
-    "pontuacaoFeitos": 14.0,
+    "pontuacaoFeitos": 14,
     "jogosRegistrados": 38,
     "premiacoes": {
       "HBA Champion": 4,
@@ -147,7 +176,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 88,
     "pontuacaoEstatistica": 0.7149,
     "pontuacaoPremiacoes": 41.3,
-    "pontuacaoFeitos": 12.0,
+    "pontuacaoFeitos": 12,
     "jogosRegistrados": 58,
     "premiacoes": {
       "HBA Champion": 1,
@@ -170,28 +199,28 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   ".369": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "1804Kevin": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "1804Shawn": {
     "overallBase": 81,
     "pontuacaoEstatistica": 0.6092,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 5
   },
   "2pt": {
     "overallBase": 81,
     "pontuacaoEstatistica": 0.3957,
     "pontuacaoPremiacoes": 0.7,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 4,
     "premiacoes": {
       "Finals Appearances": 2
@@ -199,9 +228,9 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "5chmitt": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0.35,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "premiacoes": {
       "Finals Appearances": 1
     }
@@ -210,7 +239,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 80,
     "pontuacaoEstatistica": 0.1225,
     "pontuacaoPremiacoes": 1.5,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 6,
     "premiacoes": {
       "Finals Appearances": 2,
@@ -221,7 +250,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 84,
     "pontuacaoEstatistica": 0.4392,
     "pontuacaoPremiacoes": 6.8,
-    "pontuacaoFeitos": 8.0,
+    "pontuacaoFeitos": 8,
     "jogosRegistrados": 50,
     "premiacoes": {
       "HBA Champion": 3,
@@ -239,7 +268,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 87,
     "pontuacaoEstatistica": 0.6655,
     "pontuacaoPremiacoes": 16.2,
-    "pontuacaoFeitos": 7.0,
+    "pontuacaoFeitos": 7,
     "jogosRegistrados": 23,
     "premiacoes": {
       "HBA Champion": 1,
@@ -261,44 +290,44 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 79,
     "pontuacaoEstatistica": 0.3193,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 1
   },
   "AlexBryant": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Antichrist": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "AntiChrist": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Aomine": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Arthur": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "BackpackSway": {
     "overallBase": 81,
     "pontuacaoEstatistica": 0.5619,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 1.0,
+    "pontuacaoFeitos": 1,
     "jogosRegistrados": 10,
     "doubleDigitTracker": {
       "triple": 1,
@@ -308,15 +337,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Belliar": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "BIGsantana": {
     "overallBase": 80,
     "pontuacaoEstatistica": 0.2681,
     "pontuacaoPremiacoes": 1.55,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 3,
     "premiacoes": {
       "HBA Champion": 1,
@@ -327,7 +356,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 85,
     "pontuacaoEstatistica": 0.6556,
     "pontuacaoPremiacoes": 7.65,
-    "pontuacaoFeitos": 6.0,
+    "pontuacaoFeitos": 6,
     "jogosRegistrados": 55,
     "premiacoes": {
       "HBA Champion": 1,
@@ -345,15 +374,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "brvnks": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "BS.TUGA-BAN": {
     "overallBase": 90,
     "pontuacaoEstatistica": 0.8254,
     "pontuacaoPremiacoes": 48.25,
-    "pontuacaoFeitos": 35.0,
+    "pontuacaoFeitos": 35,
     "jogosRegistrados": 46,
     "premiacoes": {
       "HBA Champion": 5,
@@ -375,15 +404,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "CainzinXIT": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "CiroNeto": {
     "overallBase": 79,
     "pontuacaoEstatistica": 0.1124,
     "pontuacaoPremiacoes": 1.15,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 25,
     "premiacoes": {
       "Finals Appearances": 1,
@@ -394,7 +423,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 79,
     "pontuacaoEstatistica": 0.1124,
     "pontuacaoPremiacoes": 1.15,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 25,
     "premiacoes": {
       "Finals Appearances": 1,
@@ -405,7 +434,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 79,
     "pontuacaoEstatistica": 0.1124,
     "pontuacaoPremiacoes": 1.15,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 25,
     "premiacoes": {
       "Finals Appearances": 1,
@@ -416,7 +445,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 91,
     "pontuacaoEstatistica": 0.8281,
     "pontuacaoPremiacoes": 115.2,
-    "pontuacaoFeitos": 30.0,
+    "pontuacaoFeitos": 30,
     "jogosRegistrados": 83,
     "premiacoes": {
       "HBA Champion": 3,
@@ -440,15 +469,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Cole": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Cole.Wolforg": {
     "overallBase": 81,
     "pontuacaoEstatistica": 0.3134,
     "pontuacaoPremiacoes": 0.55,
-    "pontuacaoFeitos": 3.0,
+    "pontuacaoFeitos": 3,
     "jogosRegistrados": 12,
     "premiacoes": {
       "Finals Appearances": 1,
@@ -462,27 +491,27 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Crossover": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Crowbirde": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Dallas": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Dame": {
     "overallBase": 92,
     "pontuacaoEstatistica": 0.919,
     "pontuacaoPremiacoes": 161.6,
-    "pontuacaoFeitos": 69.0,
+    "pontuacaoFeitos": 69,
     "jogosRegistrados": 82,
     "premiacoes": {
       "HBA Champion": 4,
@@ -508,20 +537,20 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 79,
     "pontuacaoEstatistica": 0.4036,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 1
   },
   "Deflect": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Derian.Berdsain": {
     "overallBase": 81,
     "pontuacaoEstatistica": 0.3938,
     "pontuacaoPremiacoes": 3.1,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 1,
     "premiacoes": {
       "HBA Champion": 2,
@@ -530,15 +559,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "DevinBooker": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "diogoiswwe": {
     "overallBase": 91,
     "pontuacaoEstatistica": 0.838,
     "pontuacaoPremiacoes": 120.9,
-    "pontuacaoFeitos": 32.0,
+    "pontuacaoFeitos": 32,
     "jogosRegistrados": 85,
     "premiacoes": {
       "HBA Champion": 6,
@@ -564,21 +593,21 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "dududusao": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Dududusao": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Durval": {
     "overallBase": 90,
     "pontuacaoEstatistica": 0.8674,
     "pontuacaoPremiacoes": 47.1,
-    "pontuacaoFeitos": 41.0,
+    "pontuacaoFeitos": 41,
     "jogosRegistrados": 95,
     "premiacoes": {
       "HBA Champion": 2,
@@ -602,7 +631,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 90,
     "pontuacaoEstatistica": 0.8674,
     "pontuacaoPremiacoes": 47.1,
-    "pontuacaoFeitos": 41.0,
+    "pontuacaoFeitos": 41,
     "jogosRegistrados": 95,
     "premiacoes": {
       "HBA Champion": 2,
@@ -626,7 +655,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 90,
     "pontuacaoEstatistica": 0.8674,
     "pontuacaoPremiacoes": 47.1,
-    "pontuacaoFeitos": 41.0,
+    "pontuacaoFeitos": 41,
     "jogosRegistrados": 95,
     "premiacoes": {
       "HBA Champion": 2,
@@ -650,7 +679,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 90,
     "pontuacaoEstatistica": 0.8674,
     "pontuacaoPremiacoes": 47.1,
-    "pontuacaoFeitos": 41.0,
+    "pontuacaoFeitos": 41,
     "jogosRegistrados": 95,
     "premiacoes": {
       "HBA Champion": 2,
@@ -674,7 +703,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 86,
     "pontuacaoEstatistica": 0.6571,
     "pontuacaoPremiacoes": 26.8,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 43,
     "premiacoes": {
       "Most Improved Player": 1,
@@ -688,7 +717,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 82,
     "pontuacaoEstatistica": 0.5368,
     "pontuacaoPremiacoes": 1.7,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 6,
     "premiacoes": {
       "All-HBA Second Team": 1,
@@ -700,7 +729,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 82,
     "pontuacaoEstatistica": 0.287,
     "pontuacaoPremiacoes": 5.25,
-    "pontuacaoFeitos": 1.0,
+    "pontuacaoFeitos": 1,
     "jogosRegistrados": 41,
     "premiacoes": {
       "HBA Champion": 2,
@@ -716,21 +745,21 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Ekayy": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "EmersonSheik11": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Enzo.K.Page": {
     "overallBase": 81,
     "pontuacaoEstatistica": 0.3302,
     "pontuacaoPremiacoes": 0.35,
-    "pontuacaoFeitos": 3.0,
+    "pontuacaoFeitos": 3,
     "jogosRegistrados": 15,
     "premiacoes": {
       "Finals Appearances": 1
@@ -745,7 +774,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 90,
     "pontuacaoEstatistica": 0.8232,
     "pontuacaoPremiacoes": 79.6,
-    "pontuacaoFeitos": 35.0,
+    "pontuacaoFeitos": 35,
     "jogosRegistrados": 76,
     "premiacoes": {
       "HBA Champion": 4,
@@ -770,7 +799,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 80,
     "pontuacaoEstatistica": 0.2837,
     "pontuacaoPremiacoes": 0.35,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 7,
     "premiacoes": {
       "Finals Appearances": 1
@@ -780,7 +809,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 92,
     "pontuacaoEstatistica": 0.9459,
     "pontuacaoPremiacoes": 157.3,
-    "pontuacaoFeitos": 91.0,
+    "pontuacaoFeitos": 91,
     "jogosRegistrados": 95,
     "premiacoes": {
       "HBA Champion": 6,
@@ -807,35 +836,35 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 79,
     "pontuacaoEstatistica": 0.2372,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 2
   },
   "GFB-Habbo": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0.7,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "premiacoes": {
       "Finals Appearances": 2
     }
   },
   "Gianlucca": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Giannis": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Griezmann.": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0.35,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "premiacoes": {
       "Finals Appearances": 1
     }
@@ -844,7 +873,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 81,
     "pontuacaoEstatistica": 0.4113,
     "pontuacaoPremiacoes": 0.35,
-    "pontuacaoFeitos": 1.0,
+    "pontuacaoFeitos": 1,
     "jogosRegistrados": 17,
     "premiacoes": {
       "Finals Appearances": 1
@@ -859,7 +888,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 87,
     "pontuacaoEstatistica": 0.7462,
     "pontuacaoPremiacoes": 14.15,
-    "pontuacaoFeitos": 13.0,
+    "pontuacaoFeitos": 13,
     "jogosRegistrados": 38,
     "premiacoes": {
       "HBA Champion": 1,
@@ -880,15 +909,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Harry.Hazard": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "hazmitboy": {
     "overallBase": 88,
     "pontuacaoEstatistica": 0.7611,
     "pontuacaoPremiacoes": 27.05,
-    "pontuacaoFeitos": 14.0,
+    "pontuacaoFeitos": 14,
     "jogosRegistrados": 52,
     "premiacoes": {
       "HBA Champion": 1,
@@ -914,7 +943,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 88,
     "pontuacaoEstatistica": 0.7611,
     "pontuacaoPremiacoes": 27.05,
-    "pontuacaoFeitos": 14.0,
+    "pontuacaoFeitos": 14,
     "jogosRegistrados": 52,
     "premiacoes": {
       "HBA Champion": 1,
@@ -938,15 +967,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "hbateamo": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "hendersonha": {
     "overallBase": 79,
     "pontuacaoEstatistica": 0.2059,
     "pontuacaoPremiacoes": 0.2,
-    "pontuacaoFeitos": 1.0,
+    "pontuacaoFeitos": 1,
     "jogosRegistrados": 23,
     "premiacoes": {
       "Sportsmanship Award Winner": 1
@@ -961,7 +990,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 79,
     "pontuacaoEstatistica": 0.2059,
     "pontuacaoPremiacoes": 0.2,
-    "pontuacaoFeitos": 1.0,
+    "pontuacaoFeitos": 1,
     "jogosRegistrados": 23,
     "premiacoes": {
       "Sportsmanship Award Winner": 1
@@ -974,22 +1003,22 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Heron.Colonomou": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "IDontWinGames": {
     "overallBase": 79,
     "pontuacaoEstatistica": 0.2928,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 2
   },
   "Inaudible": {
     "overallBase": 87,
     "pontuacaoEstatistica": 0.731,
     "pontuacaoPremiacoes": 9.95,
-    "pontuacaoFeitos": 27.0,
+    "pontuacaoFeitos": 27,
     "jogosRegistrados": 19,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1008,42 +1037,42 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Ingram": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Invictous": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Izumicik": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0.35,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "premiacoes": {
       "Finals Appearances": 1
     }
   },
   "jackakka404": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "jackkaka404": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Jameican": {
     "overallBase": 81,
     "pontuacaoEstatistica": 0.1113,
     "pontuacaoPremiacoes": 3.8,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 13,
     "premiacoes": {
       "HBA Champion": 2,
@@ -1054,7 +1083,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 81,
     "pontuacaoEstatistica": 0.1113,
     "pontuacaoPremiacoes": 3.8,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 13,
     "premiacoes": {
       "HBA Champion": 2,
@@ -1063,21 +1092,21 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "James-Harden": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "JamesHarden": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "JaviMartinez": {
     "overallBase": 84,
     "pontuacaoEstatistica": 0.4392,
     "pontuacaoPremiacoes": 6.8,
-    "pontuacaoFeitos": 8.0,
+    "pontuacaoFeitos": 8,
     "jogosRegistrados": 50,
     "premiacoes": {
       "HBA Champion": 3,
@@ -1095,7 +1124,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 87,
     "pontuacaoEstatistica": 0.7226,
     "pontuacaoPremiacoes": 14.2,
-    "pontuacaoFeitos": 17.0,
+    "pontuacaoFeitos": 17,
     "jogosRegistrados": 48,
     "premiacoes": {
       "HBA Champion": 3,
@@ -1117,7 +1146,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 87,
     "pontuacaoEstatistica": 0.7226,
     "pontuacaoPremiacoes": 14.2,
-    "pontuacaoFeitos": 17.0,
+    "pontuacaoFeitos": 17,
     "jogosRegistrados": 48,
     "premiacoes": {
       "HBA Champion": 3,
@@ -1139,7 +1168,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 87,
     "pontuacaoEstatistica": 0.5315,
     "pontuacaoPremiacoes": 27.3,
-    "pontuacaoFeitos": 10.0,
+    "pontuacaoFeitos": 10,
     "jogosRegistrados": 64,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1163,15 +1192,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Joao.Miguel": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "joaotomiya": {
     "overallBase": 84,
     "pontuacaoEstatistica": 0.3211,
     "pontuacaoPremiacoes": 12.6,
-    "pontuacaoFeitos": 1.0,
+    "pontuacaoFeitos": 1,
     "jogosRegistrados": 42,
     "premiacoes": {
       "HBA Champion": 2,
@@ -1190,33 +1219,33 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Jordan.Alonzo": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Joshua.Rayburn": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Jrue": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "KALASHINIKOV7": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Keome": {
     "overallBase": 89,
     "pontuacaoEstatistica": 0.7572,
     "pontuacaoPremiacoes": 58.7,
-    "pontuacaoFeitos": 8.0,
+    "pontuacaoFeitos": 8,
     "jogosRegistrados": 41,
     "premiacoes": {
       "HBA Champion": 2,
@@ -1241,14 +1270,14 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 80,
     "pontuacaoEstatistica": 0.4355,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 1
   },
   "Kirin": {
     "overallBase": 85,
     "pontuacaoEstatistica": 0.5924,
     "pontuacaoPremiacoes": 7.1,
-    "pontuacaoFeitos": 1.0,
+    "pontuacaoFeitos": 1,
     "jogosRegistrados": 59,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1269,7 +1298,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 84,
     "pontuacaoEstatistica": 0.6211,
     "pontuacaoPremiacoes": 2.45,
-    "pontuacaoFeitos": 5.0,
+    "pontuacaoFeitos": 5,
     "jogosRegistrados": 30,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1284,27 +1313,27 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Klay": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Kowlz": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Kyrie": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "lDeco10": {
     "overallBase": 90,
     "pontuacaoEstatistica": 0.7768,
     "pontuacaoPremiacoes": 83.9,
-    "pontuacaoFeitos": 10.0,
+    "pontuacaoFeitos": 10,
     "jogosRegistrados": 58,
     "premiacoes": {
       "HBA Champion": 4,
@@ -1330,9 +1359,9 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "lDinho.": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 1.55,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "premiacoes": {
       "HBA Champion": 1,
       "Finals Appearances": 1
@@ -1340,15 +1369,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Leopardo": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "lFanatic.9": {
     "overallBase": 88,
     "pontuacaoEstatistica": 0.7685,
     "pontuacaoPremiacoes": 26.15,
-    "pontuacaoFeitos": 26.0,
+    "pontuacaoFeitos": 26,
     "jogosRegistrados": 70,
     "premiacoes": {
       "HBA Champion": 3,
@@ -1373,7 +1402,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 80,
     "pontuacaoEstatistica": 0.106,
     "pontuacaoPremiacoes": 3.45,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 16,
     "premiacoes": {
       "HBA Champion": 2,
@@ -1382,21 +1411,21 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Liemar": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Lillard": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Linetop15": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0.35,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "premiacoes": {
       "Finals Appearances": 1
     }
@@ -1405,14 +1434,14 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 80,
     "pontuacaoEstatistica": 0.4085,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 5
   },
   "LM!": {
     "overallBase": 87,
     "pontuacaoEstatistica": 0.6655,
     "pontuacaoPremiacoes": 16.2,
-    "pontuacaoFeitos": 7.0,
+    "pontuacaoFeitos": 7,
     "jogosRegistrados": 23,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1434,7 +1463,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 81,
     "pontuacaoEstatistica": 0.3028,
     "pontuacaoPremiacoes": 3.1,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 1,
     "premiacoes": {
       "HBA Champion": 2,
@@ -1445,7 +1474,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 87,
     "pontuacaoEstatistica": 0.5737,
     "pontuacaoPremiacoes": 50.9,
-    "pontuacaoFeitos": 4.0,
+    "pontuacaoFeitos": 4,
     "jogosRegistrados": 62,
     "premiacoes": {
       "HBA Champion": 7,
@@ -1471,7 +1500,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 81,
     "pontuacaoEstatistica": 0.4501,
     "pontuacaoPremiacoes": 0.8,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 3,
     "premiacoes": {
       "Rookie of the Year": 1
@@ -1479,15 +1508,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "MarkManacher": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "MateuSwanton": {
     "overallBase": 81,
     "pontuacaoEstatistica": 0.2814,
     "pontuacaoPremiacoes": 2.25,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 10,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1498,7 +1527,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 81,
     "pontuacaoEstatistica": 0.2283,
     "pontuacaoPremiacoes": 3.1,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 3,
     "premiacoes": {
       "HBA Champion": 2,
@@ -1507,27 +1536,27 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "micaSPLASH": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "MID": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "mikadunker": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Mike.Barton": {
     "overallBase": 80,
     "pontuacaoEstatistica": 0.1762,
     "pontuacaoPremiacoes": 1.75,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 17,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1539,7 +1568,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 85,
     "pontuacaoEstatistica": 0.4877,
     "pontuacaoPremiacoes": 9.5,
-    "pontuacaoFeitos": 10.0,
+    "pontuacaoFeitos": 10,
     "jogosRegistrados": 27,
     "premiacoes": {
       "HBA Champion": 3,
@@ -1558,7 +1587,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 81,
     "pontuacaoEstatistica": 0.1211,
     "pontuacaoPremiacoes": 3.4,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 23,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1570,7 +1599,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 81,
     "pontuacaoEstatistica": 0.1211,
     "pontuacaoPremiacoes": 3.4,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 23,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1582,7 +1611,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 90,
     "pontuacaoEstatistica": 0.7366,
     "pontuacaoPremiacoes": 101.05,
-    "pontuacaoFeitos": 14.0,
+    "pontuacaoFeitos": 14,
     "jogosRegistrados": 38,
     "premiacoes": {
       "HBA Champion": 4,
@@ -1611,14 +1640,14 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 79,
     "pontuacaoEstatistica": 0.2798,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 1
   },
   "packgang": {
     "overallBase": 81,
     "pontuacaoEstatistica": 0.3057,
     "pontuacaoPremiacoes": 1.35,
-    "pontuacaoFeitos": 1.0,
+    "pontuacaoFeitos": 1,
     "jogosRegistrados": 9,
     "premiacoes": {
       "Finals Appearances": 1,
@@ -1635,7 +1664,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 83,
     "pontuacaoEstatistica": 0.5321,
     "pontuacaoPremiacoes": 2.7,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 40,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1647,7 +1676,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 81,
     "pontuacaoEstatistica": 0.3395,
     "pontuacaoPremiacoes": 1.55,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 3,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1656,22 +1685,22 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Pedro": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Pedro...Ban": {
     "overallBase": 79,
     "pontuacaoEstatistica": 0.319,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 1
   },
   "Persea": {
     "overallBase": 86,
     "pontuacaoEstatistica": 0.5903,
-    "pontuacaoPremiacoes": 23.0,
-    "pontuacaoFeitos": 1.0,
+    "pontuacaoPremiacoes": 23,
+    "pontuacaoFeitos": 1,
     "jogosRegistrados": 17,
     "premiacoes": {
       "HBA Champion": 4,
@@ -1692,9 +1721,9 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Phillips.Russel": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 1.55,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "premiacoes": {
       "HBA Champion": 1,
       "Finals Appearances": 1
@@ -1702,9 +1731,9 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Physo": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 2.0,
+    "pontuacaoFeitos": 2,
     "doubleDigitTracker": {
       "triple": 2,
       "quadruple": 0,
@@ -1714,8 +1743,8 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   "pinguimfrito!": {
     "overallBase": 91,
     "pontuacaoEstatistica": 0.8626,
-    "pontuacaoPremiacoes": 98.0,
-    "pontuacaoFeitos": 17.0,
+    "pontuacaoPremiacoes": 98,
+    "pontuacaoFeitos": 17,
     "jogosRegistrados": 69,
     "premiacoes": {
       "HBA Champion": 5,
@@ -1740,15 +1769,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Piozzi": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Pixelzinho.": {
     "overallBase": 83,
     "pontuacaoEstatistica": 0.2432,
     "pontuacaoPremiacoes": 13.3,
-    "pontuacaoFeitos": 1.0,
+    "pontuacaoFeitos": 1,
     "jogosRegistrados": 25,
     "premiacoes": {
       "HBA Champion": 2,
@@ -1768,15 +1797,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Podd": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "rbateamo": {
     "overallBase": 85,
     "pontuacaoEstatistica": 0.6202,
     "pontuacaoPremiacoes": 9.7,
-    "pontuacaoFeitos": 3.0,
+    "pontuacaoFeitos": 3,
     "jogosRegistrados": 47,
     "premiacoes": {
       "HBA Champion": 2,
@@ -1796,7 +1825,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 85,
     "pontuacaoEstatistica": 0.6905,
     "pontuacaoPremiacoes": 3.2,
-    "pontuacaoFeitos": 19.0,
+    "pontuacaoFeitos": 19,
     "jogosRegistrados": 27,
     "premiacoes": {
       "All-HBA Second Team": 2,
@@ -1813,7 +1842,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 80,
     "pontuacaoEstatistica": 0.4068,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 1.0,
+    "pontuacaoFeitos": 1,
     "jogosRegistrados": 6,
     "doubleDigitTracker": {
       "triple": 1,
@@ -1823,21 +1852,21 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Rock": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Sandroow": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Sartori": {
     "overallBase": 88,
     "pontuacaoEstatistica": 0.7149,
     "pontuacaoPremiacoes": 41.3,
-    "pontuacaoFeitos": 12.0,
+    "pontuacaoFeitos": 12,
     "jogosRegistrados": 58,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1862,7 +1891,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 88,
     "pontuacaoEstatistica": 0.732,
     "pontuacaoPremiacoes": 27.8,
-    "pontuacaoFeitos": 24.0,
+    "pontuacaoFeitos": 24,
     "jogosRegistrados": 67,
     "premiacoes": {
       "HBA Champion": 2,
@@ -1887,7 +1916,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 80,
     "pontuacaoEstatistica": 0.1518,
     "pontuacaoPremiacoes": 2.35,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 22,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1899,7 +1928,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 80,
     "pontuacaoEstatistica": 0.1518,
     "pontuacaoPremiacoes": 2.35,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 22,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1909,15 +1938,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "SkolBreates": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Sou,,Kaio": {
     "overallBase": 84,
     "pontuacaoEstatistica": 0.5986,
     "pontuacaoPremiacoes": 7.5,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 8,
     "premiacoes": {
       "Defensive Player of the Year": 1,
@@ -1927,33 +1956,33 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "SouBojan": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Spliked": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Splikek": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Stepback": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Stofrey": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 7.0,
+    "pontuacaoFeitos": 7,
     "doubleDigitTracker": {
       "triple": 4,
       "quadruple": 1,
@@ -1964,7 +1993,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 81,
     "pontuacaoEstatistica": 0.5309,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 1.0,
+    "pontuacaoFeitos": 1,
     "jogosRegistrados": 21,
     "doubleDigitTracker": {
       "triple": 1,
@@ -1974,15 +2003,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Swavey": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "taiiler": {
     "overallBase": 80,
     "pontuacaoEstatistica": 0.3014,
     "pontuacaoPremiacoes": 1.55,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 1,
     "premiacoes": {
       "HBA Champion": 1,
@@ -1991,9 +2020,9 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Tamroc": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 1.55,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "premiacoes": {
       "HBA Champion": 1,
       "Finals Appearances": 1
@@ -2003,7 +2032,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 88,
     "pontuacaoEstatistica": 0.6728,
     "pontuacaoPremiacoes": 93.2,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 74,
     "premiacoes": {
       "HBA Champion": 5,
@@ -2023,7 +2052,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 86,
     "pontuacaoEstatistica": 0.6053,
     "pontuacaoPremiacoes": 20.25,
-    "pontuacaoFeitos": 6.0,
+    "pontuacaoFeitos": 6,
     "jogosRegistrados": 53,
     "premiacoes": {
       "HBA Champion": 5,
@@ -2043,15 +2072,15 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Terry.Tyler": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Thousand.": {
     "overallBase": 82,
     "pontuacaoEstatistica": 0.3922,
     "pontuacaoPremiacoes": 3.1,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 13,
     "premiacoes": {
       "HBA Champion": 2,
@@ -2062,7 +2091,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 86,
     "pontuacaoEstatistica": 0.6505,
     "pontuacaoPremiacoes": 15.45,
-    "pontuacaoFeitos": 2.0,
+    "pontuacaoFeitos": 2,
     "jogosRegistrados": 42,
     "premiacoes": {
       "HBA Champion": 2,
@@ -2086,7 +2115,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 86,
     "pontuacaoEstatistica": 0.6505,
     "pontuacaoPremiacoes": 15.45,
-    "pontuacaoFeitos": 2.0,
+    "pontuacaoFeitos": 2,
     "jogosRegistrados": 42,
     "premiacoes": {
       "HBA Champion": 2,
@@ -2108,22 +2137,22 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Tommy": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "TrackStarDavid": {
     "overallBase": 79,
     "pontuacaoEstatistica": 0.1727,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 3
   },
   "Tree,": {
     "overallBase": 89,
     "pontuacaoEstatistica": 0.779,
     "pontuacaoPremiacoes": 56.2,
-    "pontuacaoFeitos": 7.0,
+    "pontuacaoFeitos": 7,
     "jogosRegistrados": 25,
     "premiacoes": {
       "HBA Champion": 2,
@@ -2146,7 +2175,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 89,
     "pontuacaoEstatistica": 0.779,
     "pontuacaoPremiacoes": 56.2,
-    "pontuacaoFeitos": 7.0,
+    "pontuacaoFeitos": 7,
     "jogosRegistrados": 25,
     "premiacoes": {
       "HBA Champion": 2,
@@ -2169,7 +2198,7 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
     "overallBase": 82,
     "pontuacaoEstatistica": 0.5799,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 3.0,
+    "pontuacaoFeitos": 3,
     "jogosRegistrados": 13,
     "doubleDigitTracker": {
       "triple": 3,
@@ -2179,21 +2208,21 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Vini.Campos": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "VloneWarren": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "xBruno-BAN": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 1.55,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "premiacoes": {
       "HBA Champion": 1,
       "Finals Appearances": 1
@@ -2201,21 +2230,21 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "xfakeprohab": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "YashiroYT": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Zat.ban.ban": {
     "overallBase": 81,
     "pontuacaoEstatistica": 0.4306,
     "pontuacaoPremiacoes": 1.9,
-    "pontuacaoFeitos": 0.0,
+    "pontuacaoFeitos": 0,
     "jogosRegistrados": 3,
     "premiacoes": {
       "HBA Champion": 1,
@@ -2224,21 +2253,1831 @@ const PERFIS_HISTORICOS_HBA = Object.freeze({
   },
   "Zion": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "zKiirito": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
   },
   "Zoi_Pocu": {
     "overallBase": 79,
-    "pontuacaoEstatistica": 0.0,
+    "pontuacaoEstatistica": 0,
     "pontuacaoPremiacoes": 0,
-    "pontuacaoFeitos": 0.0
+    "pontuacaoFeitos": 0
+  }
+});
+
+const PERFIS_HISTORICOS_HBA = Object.freeze({
+  "!LM": {
+    "overallBase": 87,
+    "pontuacaoEstatistica": 0.6655,
+    "pontuacaoPremiacoes": 16.2,
+    "pontuacaoFeitos": 7,
+    "jogosRegistrados": 23,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 2,
+      "MVP Finalist": 2,
+      "Breakout Player of the Year": 1,
+      "Most Improved Player": 1,
+      "All-HBA First Team": 2,
+      "All-HBA Total Nominations": 2,
+      "HBA All-Defensive Team": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 7,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "!Lon.doN!": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 1.55,
+    "pontuacaoFeitos": 0,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 1
+    }
+  },
+  ",cebola": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0.323,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 1
+  },
+  ",Fiver": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "-Ipod,Russo.": {
+    "overallBase": 86,
+    "pontuacaoEstatistica": 0.4866,
+    "pontuacaoPremiacoes": 20.5,
+    "pontuacaoFeitos": 3,
+    "jogosRegistrados": 64,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 6,
+      "MVP Finalist": 1,
+      "Breakout Player of the Year": 1,
+      "Most Improved Player": 1,
+      "All-HBA First Team": 1,
+      "All-HBA Second Team": 4,
+      "All-HBA Total Nominations": 5,
+      "Duo of the Year": 1,
+      "4th Man of the Year": 1,
+      "Captain of the Year": 1,
+      "Rookie of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 3,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "-Katchaum-": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0.3518,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 2
+  },
+  "-NatsuDragnnel": {
+    "overallBase": 90,
+    "pontuacaoEstatistica": 0.7366,
+    "pontuacaoPremiacoes": 101.05,
+    "pontuacaoFeitos": 14,
+    "jogosRegistrados": 38,
+    "premiacoes": {
+      "HBA Champion": 4,
+      "Finals Appearances": 7,
+      "Finals Most Valuable Player": 1,
+      "Most Valuable Player": 4,
+      "MVP Finalist": 4,
+      "Most Improved Player": 1,
+      "Offensive Player of the Year": 4,
+      "Defensive Player of the Year": 1,
+      "Breakout Player of the Year": 1,
+      "All-HBA First Team": 4,
+      "All-HBA Second Team": 1,
+      "All-HBA Total Nominations": 5,
+      "HBA All-Defensive Team": 4,
+      "Duo of the Year": 4,
+      "Rookie of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 14,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "-Sartori": {
+    "overallBase": 88,
+    "pontuacaoEstatistica": 0.7149,
+    "pontuacaoPremiacoes": 41.3,
+    "pontuacaoFeitos": 12,
+    "jogosRegistrados": 58,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 6,
+      "Most Valuable Player": 1,
+      "MVP Finalist": 2,
+      "Defensive Player of the Year": 1,
+      "All-HBA First Team": 3,
+      "All-HBA Second Team": 2,
+      "All-HBA Total Nominations": 5,
+      "HBA All-Defensive Team": 4,
+      "Duo of the Year": 1,
+      "Sportsmanship Award Winner": 3
+    },
+    "doubleDigitTracker": {
+      "triple": 9,
+      "quadruple": 1,
+      "quintuple": 0
+    }
+  },
+  ".369": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "1804Kevin": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "1804Shawn": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.6092,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 5
+  },
+  "2pt": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.3957,
+    "pontuacaoPremiacoes": 0.7,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 4,
+    "premiacoes": {
+      "Finals Appearances": 2
+    }
+  },
+  "5chmitt": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0.35,
+    "pontuacaoFeitos": 0,
+    "premiacoes": {
+      "Finals Appearances": 1
+    }
+  },
+  ":.Jessi.": {
+    "overallBase": 80,
+    "pontuacaoEstatistica": 0.1225,
+    "pontuacaoPremiacoes": 1.5,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 6,
+    "premiacoes": {
+      "Finals Appearances": 2,
+      "Rookie of the Year": 1
+    }
+  },
+  "JaviMartinez": {
+    "overallBase": 84,
+    "pontuacaoEstatistica": 0.4392,
+    "pontuacaoPremiacoes": 6.8,
+    "pontuacaoFeitos": 8,
+    "jogosRegistrados": 50,
+    "premiacoes": {
+      "HBA Champion": 3,
+      "Finals Appearances": 4,
+      "Most Improved Player": 1,
+      "4th Man of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 5,
+      "quadruple": 1,
+      "quintuple": 0
+    }
+  },
+  "adidasfit": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0.3193,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 1
+  },
+  "AlexBryant": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Antichrist": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Aomine": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Arthur": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "BackpackSway": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.5619,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 1,
+    "jogosRegistrados": 10,
+    "doubleDigitTracker": {
+      "triple": 1,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Belliar": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "BIGsantana": {
+    "overallBase": 80,
+    "pontuacaoEstatistica": 0.2681,
+    "pontuacaoPremiacoes": 1.55,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 3,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 1
+    }
+  },
+  "Bojan": {
+    "overallBase": 85,
+    "pontuacaoEstatistica": 0.6556,
+    "pontuacaoPremiacoes": 7.65,
+    "pontuacaoFeitos": 6,
+    "jogosRegistrados": 55,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 1,
+      "Most Improved Player": 1,
+      "All-HBA Second Team": 3,
+      "All-HBA Total Nominations": 3,
+      "Rookie of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 6,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "brvnks": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "BS.TUGA-BAN": {
+    "overallBase": 90,
+    "pontuacaoEstatistica": 0.8254,
+    "pontuacaoPremiacoes": 48.25,
+    "pontuacaoFeitos": 35,
+    "jogosRegistrados": 46,
+    "premiacoes": {
+      "HBA Champion": 5,
+      "Finals Appearances": 7,
+      "Most Valuable Player": 1,
+      "MVP Finalist": 3,
+      "All-HBA First Team": 4,
+      "All-HBA Second Team": 2,
+      "All-HBA Total Nominations": 6,
+      "HBA All-Defensive Team": 4,
+      "Captain of the Year": 2,
+      "Sportsmanship Award Winner": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 17,
+      "quadruple": 6,
+      "quintuple": 0
+    }
+  },
+  "CainzinXIT": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "CiroNeto.": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0.1124,
+    "pontuacaoPremiacoes": 1.15,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 25,
+    "premiacoes": {
+      "Finals Appearances": 1,
+      "Rookie of the Year": 1
+    }
+  },
+  "Ckr7.": {
+    "overallBase": 91,
+    "pontuacaoEstatistica": 0.8281,
+    "pontuacaoPremiacoes": 115.2,
+    "pontuacaoFeitos": 30,
+    "jogosRegistrados": 83,
+    "premiacoes": {
+      "HBA Champion": 3,
+      "Finals Appearances": 8,
+      "Finals Most Valuable Player": 1,
+      "MVP Finalist": 7,
+      "Offensive Player of the Year": 2,
+      "Defensive Player of the Year": 3,
+      "All-HBA First Team": 9,
+      "All-HBA Second Team": 7,
+      "All-HBA Total Nominations": 16,
+      "HBA All-Defensive Team": 13,
+      "Duo of the Year": 3,
+      "Captain of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 18,
+      "quadruple": 4,
+      "quintuple": 0
+    }
+  },
+  "Cole": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Cole.Wolforg": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.3134,
+    "pontuacaoPremiacoes": 0.55,
+    "pontuacaoFeitos": 3,
+    "jogosRegistrados": 12,
+    "premiacoes": {
+      "Finals Appearances": 1,
+      "Sportsmanship Award Winner": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 3,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Crossover": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Crowbirde": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Dallas": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Dame": {
+    "overallBase": 92,
+    "pontuacaoEstatistica": 0.919,
+    "pontuacaoPremiacoes": 161.6,
+    "pontuacaoFeitos": 69,
+    "jogosRegistrados": 82,
+    "premiacoes": {
+      "HBA Champion": 4,
+      "Finals Appearances": 12,
+      "Finals Most Valuable Player": 2,
+      "Most Valuable Player": 5,
+      "MVP Finalist": 9,
+      "Offensive Player of the Year": 4,
+      "All-HBA First Team": 10,
+      "All-HBA Second Team": 7,
+      "All-HBA Total Nominations": 17,
+      "HBA All-Defensive Team": 8,
+      "Duo of the Year": 5,
+      "Captain of the Year": 5
+    },
+    "doubleDigitTracker": {
+      "triple": 45,
+      "quadruple": 8,
+      "quintuple": 0
+    }
+  },
+  "DeAndreHopkins_": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0.4036,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 1
+  },
+  "Deflect": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Derian.Berdsain": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.3938,
+    "pontuacaoPremiacoes": 3.1,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 1,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 2
+    }
+  },
+  "DevinBooker": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "diogoiswwe": {
+    "overallBase": 91,
+    "pontuacaoEstatistica": 0.838,
+    "pontuacaoPremiacoes": 120.9,
+    "pontuacaoFeitos": 32,
+    "jogosRegistrados": 85,
+    "premiacoes": {
+      "HBA Champion": 6,
+      "Finals Appearances": 8,
+      "Finals Most Valuable Player": 1,
+      "Most Valuable Player": 1,
+      "MVP Finalist": 4,
+      "Defensive Player of the Year": 7,
+      "All-HBA First Team": 8,
+      "All-HBA Second Team": 5,
+      "All-HBA Total Nominations": 13,
+      "HBA All-Defensive Team": 11,
+      "4th Man of the Year": 1,
+      "Duo of the Year": 3,
+      "Captain of the Year": 4,
+      "Sportsmanship Award Winner": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 20,
+      "quadruple": 4,
+      "quintuple": 0
+    }
+  },
+  "dududusao": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "durvalx": {
+    "overallBase": 90,
+    "pontuacaoEstatistica": 0.8674,
+    "pontuacaoPremiacoes": 47.1,
+    "pontuacaoFeitos": 41,
+    "jogosRegistrados": 95,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 6,
+      "MVP Finalist": 1,
+      "Most Improved Player": 1,
+      "All-HBA First Team": 5,
+      "All-HBA Second Team": 10,
+      "All-HBA Total Nominations": 15,
+      "HBA All-Defensive Team": 4,
+      "Duo of the Year": 2,
+      "Sportsmanship Award Winner": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 29,
+      "quadruple": 4,
+      "quintuple": 0
+    }
+  },
+  "DVP": {
+    "overallBase": 86,
+    "pontuacaoEstatistica": 0.6571,
+    "pontuacaoPremiacoes": 26.8,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 43,
+    "premiacoes": {
+      "Most Improved Player": 1,
+      "All-HBA First Team": 4,
+      "All-HBA Second Team": 4,
+      "All-HBA Total Nominations": 8,
+      "HBA All-Defensive Team": 4
+    }
+  },
+  "DWillis": {
+    "overallBase": 82,
+    "pontuacaoEstatistica": 0.5368,
+    "pontuacaoPremiacoes": 1.7,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 6,
+    "premiacoes": {
+      "All-HBA Second Team": 1,
+      "All-HBA Total Nominations": 1,
+      "Sportsmanship Award Winner": 1
+    }
+  },
+  "EfesiosDrummond": {
+    "overallBase": 82,
+    "pontuacaoEstatistica": 0.287,
+    "pontuacaoPremiacoes": 5.25,
+    "pontuacaoFeitos": 1,
+    "jogosRegistrados": 41,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 3,
+      "Most Improved Player": 1,
+      "4th Man of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 1,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Ekayy": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "EmersonSheik11": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Enzo.K.Page": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.3302,
+    "pontuacaoPremiacoes": 0.35,
+    "pontuacaoFeitos": 3,
+    "jogosRegistrados": 15,
+    "premiacoes": {
+      "Finals Appearances": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 3,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Epheus": {
+    "overallBase": 90,
+    "pontuacaoEstatistica": 0.8232,
+    "pontuacaoPremiacoes": 79.6,
+    "pontuacaoFeitos": 35,
+    "jogosRegistrados": 76,
+    "premiacoes": {
+      "HBA Champion": 4,
+      "Finals Appearances": 6,
+      "Finals Most Valuable Player": 2,
+      "MVP Finalist": 1,
+      "Defensive Player of the Year": 4,
+      "All-HBA Total Nominations": 10,
+      "All-HBA First Team": 4,
+      "All-HBA Second Team": 6,
+      "HBA All-Defensive Team": 10,
+      "Duo of the Year": 1,
+      "Captain of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 11,
+      "quadruple": 4,
+      "quintuple": 1
+    }
+  },
+  "FastMotion": {
+    "overallBase": 80,
+    "pontuacaoEstatistica": 0.2837,
+    "pontuacaoPremiacoes": 0.35,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 7,
+    "premiacoes": {
+      "Finals Appearances": 1
+    }
+  },
+  "FlavioJuliano": {
+    "overallBase": 92,
+    "pontuacaoEstatistica": 0.9459,
+    "pontuacaoPremiacoes": 157.3,
+    "pontuacaoFeitos": 91,
+    "jogosRegistrados": 95,
+    "premiacoes": {
+      "HBA Champion": 6,
+      "Finals Appearances": 14,
+      "Finals Most Valuable Player": 3,
+      "Most Valuable Player": 3,
+      "MVP Finalist": 7,
+      "Offensive Player of the Year": 2,
+      "All-HBA First Team": 12,
+      "All-HBA Second Team": 7,
+      "All-HBA Total Nominations": 19,
+      "HBA All-Defensive Team": 13,
+      "Duo of the Year": 6,
+      "Captain of the Year": 3,
+      "Sportsmanship Award Winner": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 55,
+      "quadruple": 12,
+      "quintuple": 0
+    }
+  },
+  "Genivie": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0.2372,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 2
+  },
+  "GFB-Habbo": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0.7,
+    "pontuacaoFeitos": 0,
+    "premiacoes": {
+      "Finals Appearances": 2
+    }
+  },
+  "Gianlucca": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Giannis": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Griezmann.": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0.35,
+    "pontuacaoFeitos": 0,
+    "premiacoes": {
+      "Finals Appearances": 1
+    }
+  },
+  "GUSa147": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.4113,
+    "pontuacaoPremiacoes": 0.35,
+    "pontuacaoFeitos": 1,
+    "jogosRegistrados": 17,
+    "premiacoes": {
+      "Finals Appearances": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 1,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Haitians": {
+    "overallBase": 87,
+    "pontuacaoEstatistica": 0.7462,
+    "pontuacaoPremiacoes": 14.15,
+    "pontuacaoFeitos": 13,
+    "jogosRegistrados": 38,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 1,
+      "Finals Most Valuable Player": 1,
+      "Breakout Player of the Year": 1,
+      "Most Improved Player": 1,
+      "All-HBA First Team": 1,
+      "All-HBA Second Team": 1,
+      "All-HBA Total Nominations": 2,
+      "Duo of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 10,
+      "quadruple": 1,
+      "quintuple": 0
+    }
+  },
+  "Harry.Hazard": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "hazmitBoy": {
+    "overallBase": 88,
+    "pontuacaoEstatistica": 0.7611,
+    "pontuacaoPremiacoes": 27.05,
+    "pontuacaoFeitos": 14,
+    "jogosRegistrados": 52,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 3,
+      "Most Valuable Player": 1,
+      "MVP Finalist": 1,
+      "Most Improved Player": 1,
+      "Offensive Player of the Year": 1,
+      "Breakout Player of the Year": 1,
+      "All-HBA First Team": 2,
+      "All-HBA Second Team": 1,
+      "All-HBA Total Nominations": 3,
+      "Duo of the Year": 1,
+      "Rookie of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 11,
+      "quadruple": 1,
+      "quintuple": 0
+    }
+  },
+  "rbateamo": {
+    "overallBase": 85,
+    "pontuacaoEstatistica": 0.6202,
+    "pontuacaoPremiacoes": 9.7,
+    "pontuacaoFeitos": 3,
+    "jogosRegistrados": 47,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 4,
+      "Most Improved Player": 1,
+      "All-HBA Second Team": 3,
+      "All-HBA Total Nominations": 3,
+      "Duo of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 3,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "hendersonha.": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0.2059,
+    "pontuacaoPremiacoes": 0.2,
+    "pontuacaoFeitos": 1,
+    "jogosRegistrados": 23,
+    "premiacoes": {
+      "Sportsmanship Award Winner": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 1,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Heron.Colonomou": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "IDontWinGames": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0.2928,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 2
+  },
+  "Inaudible": {
+    "overallBase": 87,
+    "pontuacaoEstatistica": 0.731,
+    "pontuacaoPremiacoes": 9.95,
+    "pontuacaoFeitos": 27,
+    "jogosRegistrados": 19,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 1,
+      "MVP Finalist": 1,
+      "All-HBA First Team": 1,
+      "All-HBA Total Nominations": 1,
+      "HBA All-Defensive Team": 1,
+      "4th Man of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 12,
+      "quadruple": 5,
+      "quintuple": 0
+    }
+  },
+  "Ingram": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Invictous": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Izumicik": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0.35,
+    "pontuacaoFeitos": 0,
+    "premiacoes": {
+      "Finals Appearances": 1
+    }
+  },
+  "jackkaka404": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Jameican.": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.1113,
+    "pontuacaoPremiacoes": 3.8,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 13,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 4
+    }
+  },
+  "James-Harden": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "jet_": {
+    "overallBase": 87,
+    "pontuacaoEstatistica": 0.7226,
+    "pontuacaoPremiacoes": 14.2,
+    "pontuacaoFeitos": 17,
+    "jogosRegistrados": 48,
+    "premiacoes": {
+      "HBA Champion": 3,
+      "Finals Appearances": 4,
+      "All-HBA First Team": 1,
+      "All-HBA Second Team": 2,
+      "All-HBA Total Nominations": 3,
+      "HBA All-Defensive Team": 1,
+      "4th Man of the Year": 1,
+      "Sportsmanship Award Winner": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 8,
+      "quadruple": 3,
+      "quintuple": 0
+    }
+  },
+  "Jhon.Cole": {
+    "overallBase": 87,
+    "pontuacaoEstatistica": 0.5315,
+    "pontuacaoPremiacoes": 27.3,
+    "pontuacaoFeitos": 10,
+    "jogosRegistrados": 64,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 4,
+      "MVP Finalist": 1,
+      "Most Improved Player": 1,
+      "Defensive Player of the Year": 1,
+      "All-HBA First Team": 2,
+      "All-HBA Second Team": 2,
+      "All-HBA Total Nominations": 4,
+      "HBA All-Defensive Team": 3,
+      "4th Man of the Year": 1,
+      "Captain of the Year": 1,
+      "Rookie of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 7,
+      "quadruple": 1,
+      "quintuple": 0
+    }
+  },
+  "Joao.Miguel": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "joaotomiya": {
+    "overallBase": 84,
+    "pontuacaoEstatistica": 0.3211,
+    "pontuacaoPremiacoes": 12.6,
+    "pontuacaoFeitos": 1,
+    "jogosRegistrados": 42,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 6,
+      "Most Improved Player": 1,
+      "All-HBA Second Team": 1,
+      "All-HBA Total Nominations": 1,
+      "4th Man of the Year": 5,
+      "Rookie of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 1,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Jordan.Alonzo": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Joshua.Rayburn": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Jrue": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "KALASHINIKOV7": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Keome": {
+    "overallBase": 89,
+    "pontuacaoEstatistica": 0.7572,
+    "pontuacaoPremiacoes": 58.7,
+    "pontuacaoFeitos": 8,
+    "jogosRegistrados": 41,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 4,
+      "Finals Most Valuable Player": 1,
+      "Most Valuable Player": 1,
+      "MVP Finalist": 3,
+      "Defensive Player of the Year": 1,
+      "All-HBA First Team": 3,
+      "All-HBA Second Team": 5,
+      "All-HBA Total Nominations": 8,
+      "HBA All-Defensive Team": 6,
+      "Duo of the Year": 2
+    },
+    "doubleDigitTracker": {
+      "triple": 8,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "KingHandles": {
+    "overallBase": 80,
+    "pontuacaoEstatistica": 0.4355,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 1
+  },
+  "Kirin": {
+    "overallBase": 85,
+    "pontuacaoEstatistica": 0.5924,
+    "pontuacaoPremiacoes": 7.1,
+    "pontuacaoFeitos": 1,
+    "jogosRegistrados": 59,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 2,
+      "Most Improved Player": 1,
+      "All-HBA Second Team": 2,
+      "All-HBA Total Nominations": 2,
+      "Duo of the Year": 1,
+      "Rookie of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 1,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Klaus.Ramlow": {
+    "overallBase": 84,
+    "pontuacaoEstatistica": 0.6211,
+    "pontuacaoPremiacoes": 2.45,
+    "pontuacaoFeitos": 5,
+    "jogosRegistrados": 30,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 3,
+      "Sportsmanship Award Winner": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 5,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Klay": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Kowlz": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Kyrie": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "lDeco10": {
+    "overallBase": 90,
+    "pontuacaoEstatistica": 0.7768,
+    "pontuacaoPremiacoes": 83.9,
+    "pontuacaoFeitos": 10,
+    "jogosRegistrados": 58,
+    "premiacoes": {
+      "HBA Champion": 4,
+      "Finals Appearances": 6,
+      "Most Valuable Player": 1,
+      "Finals Most Valuable Player": 3,
+      "MVP Finalist": 2,
+      "Most Improved Player": 1,
+      "Offensive Player of the Year": 2,
+      "Defensive Player of the Year": 1,
+      "All-HBA First Team": 6,
+      "All-HBA Second Team": 4,
+      "All-HBA Total Nominations": 10,
+      "HBA All-Defensive Team": 4,
+      "Duo of the Year": 1,
+      "Rookie of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 10,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "lDinho.": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 1.55,
+    "pontuacaoFeitos": 0,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 1
+    }
+  },
+  "Leopardo": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "lFanatic.9": {
+    "overallBase": 88,
+    "pontuacaoEstatistica": 0.7685,
+    "pontuacaoPremiacoes": 26.15,
+    "pontuacaoFeitos": 26,
+    "jogosRegistrados": 70,
+    "premiacoes": {
+      "HBA Champion": 3,
+      "Finals Appearances": 5,
+      "Most Improved Player": 1,
+      "All-HBA First Team": 2,
+      "All-HBA Second Team": 3,
+      "All-HBA Total Nominations": 5,
+      "HBA All-Defensive Team": 3,
+      "Duo of the Year": 1,
+      "4th Man of the Year": 2,
+      "Captain of the Year": 1,
+      "Sportsmanship Award Winner": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 17,
+      "quadruple": 3,
+      "quintuple": 0
+    }
+  },
+  "lGansito.": {
+    "overallBase": 80,
+    "pontuacaoEstatistica": 0.106,
+    "pontuacaoPremiacoes": 3.45,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 16,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 3
+    }
+  },
+  "Liemar": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Lillard": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Linetop15": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0.35,
+    "pontuacaoFeitos": 0,
+    "premiacoes": {
+      "Finals Appearances": 1
+    }
+  },
+  "lJpadidas": {
+    "overallBase": 80,
+    "pontuacaoEstatistica": 0.4085,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 5
+  },
+  "LoKsMaT4DoR": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.3028,
+    "pontuacaoPremiacoes": 3.1,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 1,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 2
+    }
+  },
+  "lTrans": {
+    "overallBase": 87,
+    "pontuacaoEstatistica": 0.5737,
+    "pontuacaoPremiacoes": 50.9,
+    "pontuacaoFeitos": 4,
+    "jogosRegistrados": 62,
+    "premiacoes": {
+      "HBA Champion": 7,
+      "Finals Appearances": 10,
+      "Finals Most Valuable Player": 2,
+      "MVP Finalist": 1,
+      "All-HBA First Team": 5,
+      "All-HBA Second Team": 3,
+      "All-HBA Total Nominations": 8,
+      "HBA All-Defensive Team": 1,
+      "Duo of the Year": 2,
+      "4th Man of the Year": 1,
+      "Captain of the Year": 1,
+      "Sportsmanship Award Winner": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 4,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "MarceloShultz": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.4501,
+    "pontuacaoPremiacoes": 0.8,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 3,
+    "premiacoes": {
+      "Rookie of the Year": 1
+    }
+  },
+  "MarkManacher": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "MateuSwanton": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.2814,
+    "pontuacaoPremiacoes": 2.25,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 10,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 3
+    }
+  },
+  "MCDiscoqueijos": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.2283,
+    "pontuacaoPremiacoes": 3.1,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 3,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 2
+    }
+  },
+  "micaSPLASH": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "MID": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "mikedunker": {
+    "overallBase": 85,
+    "pontuacaoEstatistica": 0.4877,
+    "pontuacaoPremiacoes": 9.5,
+    "pontuacaoFeitos": 10,
+    "jogosRegistrados": 27,
+    "premiacoes": {
+      "HBA Champion": 3,
+      "Finals Appearances": 6,
+      "All-HBA Second Team": 2,
+      "All-HBA Total Nominations": 2,
+      "Rookie of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 7,
+      "quadruple": 1,
+      "quintuple": 0
+    }
+  },
+  "Mike.Barton": {
+    "overallBase": 80,
+    "pontuacaoEstatistica": 0.1762,
+    "pontuacaoPremiacoes": 1.75,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 17,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 1,
+      "Sportsmanship Award Winner": 1
+    }
+  },
+  "mutucka": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.1211,
+    "pontuacaoPremiacoes": 3.4,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 23,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 4,
+      "Rookie of the Year": 1
+    }
+  },
+  "Ozz=": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0.2798,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 1
+  },
+  "packgang": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.3057,
+    "pontuacaoPremiacoes": 1.35,
+    "pontuacaoFeitos": 1,
+    "jogosRegistrados": 9,
+    "premiacoes": {
+      "Finals Appearances": 1,
+      "Most Improved Player": 1,
+      "Sportsmanship Award Winner": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 1,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Pashuko": {
+    "overallBase": 83,
+    "pontuacaoEstatistica": 0.5321,
+    "pontuacaoPremiacoes": 2.7,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 40,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 2,
+      "Most Improved Player": 1
+    }
+  },
+  "Pebito": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.3395,
+    "pontuacaoPremiacoes": 1.55,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 3,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 1
+    }
+  },
+  "Pedro": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Pedro...Ban": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0.319,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 1
+  },
+  "Persea": {
+    "overallBase": 86,
+    "pontuacaoEstatistica": 0.5903,
+    "pontuacaoPremiacoes": 23,
+    "pontuacaoFeitos": 1,
+    "jogosRegistrados": 17,
+    "premiacoes": {
+      "HBA Champion": 4,
+      "Finals Appearances": 6,
+      "MVP Finalist": 1,
+      "All-HBA First Team": 2,
+      "All-HBA Second Team": 1,
+      "All-HBA Total Nominations": 3,
+      "HBA All-Defensive Team": 2,
+      "Duo of the Year": 2,
+      "4th Man of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 1,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Phillips.Russel": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 1.55,
+    "pontuacaoFeitos": 0,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 1
+    }
+  },
+  "Physo": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 2,
+    "doubleDigitTracker": {
+      "triple": 2,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "pinguimfrito!": {
+    "overallBase": 91,
+    "pontuacaoEstatistica": 0.8626,
+    "pontuacaoPremiacoes": 98,
+    "pontuacaoFeitos": 17,
+    "jogosRegistrados": 69,
+    "premiacoes": {
+      "HBA Champion": 5,
+      "Finals Appearances": 12,
+      "Finals Most Valuable Player": 2,
+      "Most Valuable Player": 1,
+      "MVP Finalist": 5,
+      "Defensive Player of the Year": 2,
+      "All-HBA First Team": 7,
+      "All-HBA Second Team": 7,
+      "All-HBA Total Nominations": 14,
+      "HBA All-Defensive Team": 7,
+      "Duo of the Year": 1,
+      "4th Man of the Year": 1,
+      "Captain of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 11,
+      "quadruple": 2,
+      "quintuple": 0
+    }
+  },
+  "Piozzi": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Pixelzinho.": {
+    "overallBase": 83,
+    "pontuacaoEstatistica": 0.2432,
+    "pontuacaoPremiacoes": 13.3,
+    "pontuacaoFeitos": 1,
+    "jogosRegistrados": 25,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 4,
+      "MVP Finalist": 1,
+      "Most Improved Player": 2,
+      "All-HBA First Team": 1,
+      "All-HBA Second Team": 1,
+      "All-HBA Total Nominations": 2,
+      "4th Man of the Year": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 1,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Podd": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Retoll": {
+    "overallBase": 85,
+    "pontuacaoEstatistica": 0.6905,
+    "pontuacaoPremiacoes": 3.2,
+    "pontuacaoFeitos": 19,
+    "jogosRegistrados": 27,
+    "premiacoes": {
+      "All-HBA Second Team": 2,
+      "All-HBA Total Nominations": 2,
+      "Sportsmanship Award Winner": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 13,
+      "quadruple": 2,
+      "quintuple": 0
+    }
+  },
+  "RichExtreme": {
+    "overallBase": 80,
+    "pontuacaoEstatistica": 0.4068,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 1,
+    "jogosRegistrados": 6,
+    "doubleDigitTracker": {
+      "triple": 1,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Rock": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Sandroow": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Saul": {
+    "overallBase": 88,
+    "pontuacaoEstatistica": 0.732,
+    "pontuacaoPremiacoes": 27.8,
+    "pontuacaoFeitos": 24,
+    "jogosRegistrados": 67,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 2,
+      "Finals Most Valuable Player": 1,
+      "MVP Finalist": 1,
+      "Defensive Player of the Year": 1,
+      "All-HBA First Team": 2,
+      "All-HBA Second Team": 2,
+      "All-HBA Total Nominations": 4,
+      "HBA All-Defensive Team": 1,
+      "Captain of the Year": 1,
+      "Sportsmanship Award Winner": 3
+    },
+    "doubleDigitTracker": {
+      "triple": 12,
+      "quadruple": 4,
+      "quintuple": 0
+    }
+  },
+  "Seth.MacTravish": {
+    "overallBase": 80,
+    "pontuacaoEstatistica": 0.1518,
+    "pontuacaoPremiacoes": 2.35,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 22,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 1,
+      "Most Improved Player": 1
+    }
+  },
+  "SkolBreates": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Sou,,Kaio": {
+    "overallBase": 84,
+    "pontuacaoEstatistica": 0.5986,
+    "pontuacaoPremiacoes": 7.5,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 8,
+    "premiacoes": {
+      "Defensive Player of the Year": 1,
+      "All-HBA Second Team": 1,
+      "HBA All-Defensive Team": 1
+    }
+  },
+  "SouBojan": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Spliked": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Stepback": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Stofrey": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 7,
+    "doubleDigitTracker": {
+      "triple": 4,
+      "quadruple": 1,
+      "quintuple": 0
+    }
+  },
+  "Stvo": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.5309,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 1,
+    "jogosRegistrados": 21,
+    "doubleDigitTracker": {
+      "triple": 1,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Swavey": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "taiiler": {
+    "overallBase": 80,
+    "pontuacaoEstatistica": 0.3014,
+    "pontuacaoPremiacoes": 1.55,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 1,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 1
+    }
+  },
+  "Tamroc": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 1.55,
+    "pontuacaoFeitos": 0,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 1
+    }
+  },
+  "Tawsh": {
+    "overallBase": 88,
+    "pontuacaoEstatistica": 0.6728,
+    "pontuacaoPremiacoes": 93.2,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 74,
+    "premiacoes": {
+      "HBA Champion": 5,
+      "Finals Appearances": 6,
+      "Finals Most Valuable Player": 1,
+      "Most Valuable Player": 2,
+      "MVP Finalist": 5,
+      "Offensive Player of the Year": 6,
+      "All-HBA First Team": 6,
+      "All-HBA Second Team": 5,
+      "All-HBA Total Nominations": 11,
+      "Duo of the Year": 1,
+      "4th Man of the Year": 1
+    }
+  },
+  "Teqedo": {
+    "overallBase": 86,
+    "pontuacaoEstatistica": 0.6053,
+    "pontuacaoPremiacoes": 20.25,
+    "pontuacaoFeitos": 6,
+    "jogosRegistrados": 53,
+    "premiacoes": {
+      "HBA Champion": 5,
+      "Finals Appearances": 7,
+      "Most Improved Player": 1,
+      "All-HBA First Team": 1,
+      "All-HBA Second Team": 2,
+      "All-HBA Total Nominations": 3,
+      "HBA All-Defensive Team": 1,
+      "4th Man of the Year": 3
+    },
+    "doubleDigitTracker": {
+      "triple": 6,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Terry.Tyler": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Thousand.": {
+    "overallBase": 82,
+    "pontuacaoEstatistica": 0.3922,
+    "pontuacaoPremiacoes": 3.1,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 13,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 2
+    }
+  },
+  "tico012": {
+    "overallBase": 86,
+    "pontuacaoEstatistica": 0.6505,
+    "pontuacaoPremiacoes": 15.45,
+    "pontuacaoFeitos": 2,
+    "jogosRegistrados": 42,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 3,
+      "MVP Finalist": 1,
+      "Breakout Player of the Year": 1,
+      "All-HBA First Team": 1,
+      "All-HBA Second Team": 2,
+      "All-HBA Total Nominations": 3,
+      "HBA All-Defensive Team": 1,
+      "Captain of the Year": 1,
+      "Sportsmanship Award Winner": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 2,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Tommy": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "TrackStarDavid": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0.1727,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 3
+  },
+  "Tree.": {
+    "overallBase": 89,
+    "pontuacaoEstatistica": 0.779,
+    "pontuacaoPremiacoes": 56.2,
+    "pontuacaoFeitos": 7,
+    "jogosRegistrados": 25,
+    "premiacoes": {
+      "HBA Champion": 2,
+      "Finals Appearances": 8,
+      "Most Valuable Player": 1,
+      "MVP Finalist": 4,
+      "Offensive Player of the Year": 2,
+      "All-HBA First Team": 6,
+      "HBA All-Defensive Team": 3,
+      "Duo of the Year": 2,
+      "Sportsmanship Award Winner": 1
+    },
+    "doubleDigitTracker": {
+      "triple": 4,
+      "quadruple": 1,
+      "quintuple": 0
+    }
+  },
+  "UnderArmours": {
+    "overallBase": 82,
+    "pontuacaoEstatistica": 0.5799,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 3,
+    "jogosRegistrados": 13,
+    "doubleDigitTracker": {
+      "triple": 3,
+      "quadruple": 0,
+      "quintuple": 0
+    }
+  },
+  "Vini.Campos": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "VloneWarren": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "xBruno-BAN": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 1.55,
+    "pontuacaoFeitos": 0,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 1
+    }
+  },
+  "xfakeprohab": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "YashiroYT": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Zat.ban.ban": {
+    "overallBase": 81,
+    "pontuacaoEstatistica": 0.4306,
+    "pontuacaoPremiacoes": 1.9,
+    "pontuacaoFeitos": 0,
+    "jogosRegistrados": 3,
+    "premiacoes": {
+      "HBA Champion": 1,
+      "Finals Appearances": 2
+    }
+  },
+  "Zion": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "zKiirito": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
+  },
+  "Zoi_Pocu": {
+    "overallBase": 79,
+    "pontuacaoEstatistica": 0,
+    "pontuacaoPremiacoes": 0,
+    "pontuacaoFeitos": 0
   }
 });
 
@@ -2547,7 +4386,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 0
       },
       {
-        "nome": "Tree,",
+        "nome": "Tree.",
         "posicao": "PF",
         "overall": 89,
         "overallBase": 89,
@@ -2670,7 +4509,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 4
       },
       {
-        "nome": "Jameican",
+        "nome": "Jameican.",
         "posicao": "SG",
         "overall": 84,
         "overallBase": 81,
@@ -2860,7 +4699,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 4
       },
       {
-        "nome": "Tree,",
+        "nome": "Tree.",
         "posicao": "PF",
         "overall": 93,
         "overallBase": 89,
@@ -3020,7 +4859,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 3
       },
       {
-        "nome": "Tree,",
+        "nome": "Tree.",
         "posicao": "PF",
         "overall": 93,
         "overallBase": 89,
@@ -3143,7 +4982,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 2
       },
       {
-        "nome": "jackakka404",
+        "nome": "jackkaka404",
         "posicao": "PG",
         "overall": 79,
         "overallBase": 79,
@@ -3252,7 +5091,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 1
       },
       {
-        "nome": "jackakka404",
+        "nome": "jackkaka404",
         "posicao": "C",
         "overall": 81,
         "overallBase": 79,
@@ -3354,7 +5193,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": -2
       },
       {
-        "nome": "Tree,",
+        "nome": "Tree.",
         "posicao": "PF",
         "overall": 90,
         "overallBase": 89,
@@ -3447,7 +5286,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 2
       },
       {
-        "nome": "SethMacTravish",
+        "nome": "Seth.MacTravish",
         "posicao": "PG",
         "overall": 81,
         "overallBase": 80,
@@ -3758,7 +5597,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 0
       },
       {
-        "nome": "Jameican",
+        "nome": "Jameican.",
         "posicao": "SG",
         "overall": 81,
         "overallBase": 81,
@@ -3816,7 +5655,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 2
       },
       {
-        "nome": "Tree,",
+        "nome": "Tree.",
         "posicao": "PF",
         "overall": 92,
         "overallBase": 89,
@@ -3909,7 +5748,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 5
       }
     ],
-    "ajusteEquipe": 5.0
+    "ajusteEquipe": 5
   },
   {
     "time": "Philadelphia 76ers",
@@ -4039,7 +5878,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 0
       }
     ],
-    "ajusteEquipe": -3.0
+    "ajusteEquipe": -3
   },
   {
     "time": "Oklahoma City Thunder",
@@ -4206,7 +6045,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 3
       },
       {
-        "nome": "Tree,",
+        "nome": "Tree.",
         "posicao": "PF",
         "overall": 90,
         "overallBase": 89,
@@ -4378,7 +6217,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 4
       }
     ],
-    "ajusteEquipe": 5.0
+    "ajusteEquipe": 5
   },
   {
     "time": "Indiana Pacers",
@@ -4545,7 +6384,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 3
       },
       {
-        "nome": "Tree,",
+        "nome": "Tree.",
         "posicao": "PF",
         "overall": 92,
         "overallBase": 89,
@@ -4979,7 +6818,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 4
       }
     ],
-    "ajusteEquipe": 5.0
+    "ajusteEquipe": 5
   },
   {
     "time": "Phoenix Suns",
@@ -5162,7 +7001,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 2
       },
       {
-        "nome": "Durvalx",
+        "nome": "durvalx",
         "posicao": "PG",
         "overall": 91,
         "overallBase": 90,
@@ -5394,7 +7233,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 0
       },
       {
-        "nome": "Mutucka",
+        "nome": "mutucka",
         "posicao": "PF",
         "overall": 81,
         "overallBase": 81,
@@ -5415,7 +7254,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 0
       },
       {
-        "nome": "@!LM",
+        "nome": "!LM",
         "posicao": "SG",
         "overall": 88,
         "overallBase": 87,
@@ -5953,7 +7792,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 0
       },
       {
-        "nome": "Cironeto.",
+        "nome": "CiroNeto.",
         "posicao": "PF",
         "overall": 79,
         "overallBase": 79,
@@ -6011,7 +7850,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 1
       },
       {
-        "nome": ":JaviMartinez",
+        "nome": "JaviMartinez",
         "posicao": "SG",
         "overall": 86,
         "overallBase": 84,
@@ -6069,7 +7908,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": -4
       },
       {
-        "nome": "mikadunker",
+        "nome": "mikedunker",
         "posicao": "PF",
         "overall": 79,
         "overallBase": 79,
@@ -6113,7 +7952,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": -2
       },
       {
-        "nome": "LM!",
+        "nome": "!LM",
         "posicao": "SG",
         "overall": 84,
         "overallBase": 87,
@@ -6127,14 +7966,14 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": -3
       },
       {
-        "nome": "hbateamo",
+        "nome": "rbateamo",
         "posicao": "PG",
         "overall": 79,
         "overallBase": 79,
         "ajusteTemporada": 0
       },
       {
-        "nome": "hendersonha",
+        "nome": "hendersonha.",
         "posicao": "SG",
         "overall": 79,
         "overallBase": 79,
@@ -6164,14 +8003,14 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 0
       },
       {
-        "nome": "-Ipod,Russo",
+        "nome": "-Ipod,Russo.",
         "posicao": "SF",
         "overall": 87,
         "overallBase": 86,
         "ajusteTemporada": 1
       },
       {
-        "nome": "Dududusao",
+        "nome": "dududusao",
         "posicao": "PF",
         "overall": 80,
         "overallBase": 79,
@@ -6273,7 +8112,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 6
       },
       {
-        "nome": "Splikek",
+        "nome": "Spliked",
         "posicao": "SF",
         "overall": 83,
         "overallBase": 79,
@@ -6287,7 +8126,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 5
       },
       {
-        "nome": "Cironeto.",
+        "nome": "CiroNeto.",
         "posicao": "PF",
         "overall": 84,
         "overallBase": 79,
@@ -6660,7 +8499,7 @@ const BANCO_CONSOLIDADO_HBA = [
     },
     "elenco": [
       {
-        "nome": "Dududusao",
+        "nome": "dududusao",
         "posicao": "PG",
         "overall": 79,
         "overallBase": 79,
@@ -6711,7 +8550,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 3
       },
       {
-        "nome": "Sartori",
+        "nome": "-Sartori",
         "posicao": "SG",
         "overall": 92,
         "overallBase": 88,
@@ -6827,7 +8666,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 0
       },
       {
-        "nome": "Tico012",
+        "nome": "tico012",
         "posicao": "SF",
         "overall": 86,
         "overallBase": 86,
@@ -6855,7 +8694,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 1
       },
       {
-        "nome": "CiroNeto",
+        "nome": "CiroNeto.",
         "posicao": "PF",
         "overall": 80,
         "overallBase": 79,
@@ -6913,7 +8752,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 4
       },
       {
-        "nome": "NatsuDragnnel",
+        "nome": "-NatsuDragnnel",
         "posicao": "C",
         "overall": 91,
         "overallBase": 90,
@@ -6964,7 +8803,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 0
       },
       {
-        "nome": "jet",
+        "nome": "jet_",
         "posicao": "PG",
         "overall": 86,
         "overallBase": 87,
@@ -6994,7 +8833,7 @@ const BANCO_CONSOLIDADO_HBA = [
     },
     "elenco": [
       {
-        "nome": "Durval",
+        "nome": "durvalx",
         "posicao": "SG",
         "overall": 91,
         "overallBase": 90,
@@ -7138,7 +8977,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": -1
       },
       {
-        "nome": "Sartori",
+        "nome": "-Sartori",
         "posicao": "SG",
         "overall": 89,
         "overallBase": 88,
@@ -7161,7 +9000,7 @@ const BANCO_CONSOLIDADO_HBA = [
     },
     "elenco": [
       {
-        "nome": "durval",
+        "nome": "durvalx",
         "posicao": "PG",
         "overall": 87,
         "overallBase": 90,
@@ -7240,7 +9079,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 2
       },
       {
-        "nome": "JamesHarden",
+        "nome": "James-Harden",
         "posicao": "PG",
         "overall": 83,
         "overallBase": 79,
@@ -7342,7 +9181,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 2
       },
       {
-        "nome": "hazmitboy",
+        "nome": "hazmitBoy",
         "posicao": "PF",
         "overall": 90,
         "overallBase": 88,
@@ -7553,7 +9392,7 @@ const BANCO_CONSOLIDADO_HBA = [
     },
     "elenco": [
       {
-        "nome": "Durval",
+        "nome": "durvalx",
         "posicao": "PG",
         "overall": 90,
         "overallBase": 90,
@@ -7646,7 +9485,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 2
       },
       {
-        "nome": "Splikek",
+        "nome": "Spliked",
         "posicao": "SG",
         "overall": 81,
         "overallBase": 79,
@@ -7887,7 +9726,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": 0
       },
       {
-        "nome": "durval",
+        "nome": "durvalx",
         "posicao": "PG",
         "overall": 88,
         "overallBase": 90,
@@ -8135,7 +9974,7 @@ const BANCO_CONSOLIDADO_HBA = [
     },
     "elenco": [
       {
-        "nome": "AntiChrist",
+        "nome": "Antichrist",
         "posicao": "PG",
         "overall": 79,
         "overallBase": 79,
@@ -8670,7 +10509,7 @@ const BANCO_CONSOLIDADO_HBA = [
     },
     "elenco": [
       {
-        "nome": "durval",
+        "nome": "durvalx",
         "posicao": "PG",
         "overall": 87,
         "overallBase": 90,
@@ -8786,7 +10625,7 @@ const BANCO_CONSOLIDADO_HBA = [
         "ajusteTemporada": -1
       },
       {
-        "nome": "Sartori",
+        "nome": "-Sartori",
         "posicao": "SG",
         "overall": 90,
         "overallBase": 88,
@@ -9184,9 +11023,10 @@ const BANCO_CONSOLIDADO_HBA = [
   }
 ];
 
-
-// Interface de leitura usada pelo motor e pelos testes.
 window.HBADatabase = Object.freeze({
   perfis: PERFIS_HISTORICOS_HBA,
-  equipes: BANCO_CONSOLIDADO_HBA
+  perfisOriginais: PERFIS_HISTORICOS_ORIGINAIS_HBA,
+  equipes: BANCO_CONSOLIDADO_HBA,
+  aliases: ALIASES_JOGADORES_HBA,
+  nomeCanonico: function(nome) { return ALIASES_JOGADORES_HBA[nome] || nome; }
 });

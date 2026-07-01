@@ -19,7 +19,7 @@
 
     const I18N = {
       pt: {
-        welcomeTeamName: 'Nome do seu Time', welcomePlaceholder: 'Digite o nome da sua equipe', startLegacy: 'Iniciar Legado', startingLegacy: 'Preparando seu legado...', startFailed: 'Não foi possível abrir o draft. Tente novamente.', credit: 'Por Efésius Drumond',
+        welcomeTeamName: 'Nome do seu Time', welcomePlaceholder: 'Digite o nome da sua equipe', chooseLogo: 'Escolher Logo', logoSelectionTitle: 'Escolha o logo do seu time', logoSelectionHint: 'Você poderá usar este escudo durante toda a temporada.', originalLogos: 'Logos Originais', nbaLogos: 'Logos da NBA', originalLogosHint: 'Escudos exclusivos do HBA Legacy.', nbaLogosHint: 'Logos oficiais carregadas pelo mesmo catálogo visual já usado no jogo.', backToName: 'Voltar', startLegacy: 'Iniciar Legado', startingLegacy: 'Preparando seu legado...', startFailed: 'Não foi possível abrir o draft. Tente novamente.', credit: 'Por Efésius Drumond',
         brandSubtitle: 'Draft histórico, temporada curta e playoffs por conferência', franchise: 'Franquia', overall: 'Overall', conference: 'Conferência', spins: 'Spins',
         regularSeason: 'Temporada regular', standings: 'Classificação', fiveGames: '5 JOGOS', standingsEmpty: 'A tabela será formada com seu time e cinco franquias aleatórias.',
         spinSeason: 'OUTRA TEMPORADA', spinTeam: 'OUTRA EQUIPE', nextTeam: '🎲 PRÓXIMA EQUIPE', startSeason: 'INICIAR TEMPORADA', playRound: 'JOGAR RODADA', playGame: 'JOGAR PARTIDA', newGame: 'REINICIAR LEGADO',
@@ -36,7 +36,7 @@
         regularPhase: 'Temporada Regular', playoffs: 'Playoffs', finals: 'Finais', defaultTeam: 'Seu Time'
       },
       en: {
-        welcomeTeamName: "Your Team's Name", welcomePlaceholder: 'Enter your team name', startLegacy: 'Start Legacy', startingLegacy: 'Preparing your legacy...', startFailed: 'The draft could not be opened. Please try again.', credit: 'By Efésius Drumond',
+        welcomeTeamName: "Your Team's Name", welcomePlaceholder: 'Enter your team name', chooseLogo: 'Choose Logo', logoSelectionTitle: 'Choose your team logo', logoSelectionHint: 'This crest will represent your team throughout the season.', originalLogos: 'Original Logos', nbaLogos: 'NBA Logos', originalLogosHint: 'Exclusive HBA Legacy crests.', nbaLogosHint: 'Official logos loaded from the same visual catalog already used by the game.', backToName: 'Back', startLegacy: 'Start Legacy', startingLegacy: 'Preparing your legacy...', startFailed: 'The draft could not be opened. Please try again.', credit: 'By Efésius Drumond',
         brandSubtitle: 'Historic draft, short season and conference playoffs', franchise: 'Franchise', overall: 'Overall', conference: 'Conference', spins: 'Spins',
         regularSeason: 'Regular season', standings: 'Standings', fiveGames: '5 GAMES', standingsEmpty: 'The table will be formed by your team and five random franchises.',
         spinSeason: 'ANOTHER SEASON', spinTeam: 'ANOTHER TEAM', nextTeam: '🎲 NEXT TEAM', startSeason: 'START SEASON', playRound: 'PLAY ROUND', playGame: 'PLAY GAME', newGame: 'RESTART LEGACY',
@@ -98,6 +98,9 @@
       draggedDraftPlayer: null,
       draggedRosterSlot: null,
       userName: 'Seu Time',
+      userLogoId: storageGet('hba_user_logo_id', 'wolf'),
+      userLogoCategory: storageGet('hba_user_logo_category', 'originais'),
+      userLogo: '',
       liga: null,
       rodadaAtual: 0,
       fase: 'DRAFT',
@@ -120,6 +123,152 @@
       return true;
     }
 
+
+    function obterLogoUsuarioSelecionado() {
+      if (!window.HBAUserLogos || !Array.isArray(window.HBAUserLogos.lista)) return null;
+      return window.HBAUserLogos.obterPorId(game.userLogoId);
+    }
+
+    function atualizarLogoUsuarioNaInterface() {
+      const logo = obterLogoUsuarioSelecionado();
+      game.userLogo = logo ? logo.src : '';
+      const displayLogo = document.getElementById('display-team-logo');
+      if (displayLogo) {
+        displayLogo.src = game.userLogo || '';
+        displayLogo.hidden = !game.userLogo;
+        displayLogo.alt = game.userLogo ? `Logo de ${game.userName}` : '';
+      }
+    }
+
+    function selecionarLogoUsuario(id) {
+      const logo = window.HBAUserLogos && window.HBAUserLogos.obterPorId(id);
+      if (!logo) return false;
+      game.userLogoId = logo.id;
+      game.userLogoCategory = logo.categoria || 'originais';
+      game.userLogo = logo.src;
+      storageSet('hba_user_logo_id', logo.id);
+      storageSet('hba_user_logo_category', game.userLogoCategory);
+      atualizarBotoesCategoriaLogo();
+      document.querySelectorAll('.team-logo-option').forEach(function(option) {
+        const selecionada = option.dataset.logoId === logo.id;
+        option.classList.toggle('selected', selecionada);
+        option.setAttribute('aria-checked', selecionada ? 'true' : 'false');
+        option.tabIndex = selecionada ? 0 : -1;
+      });
+      atualizarLogoUsuarioNaInterface();
+      return true;
+    }
+
+    function atualizarBotoesCategoriaLogo() {
+      const categoria = game.userLogoCategory === 'nba' ? 'nba' : 'originais';
+      document.querySelectorAll('[data-logo-category]').forEach(function(button) {
+        const ativa = button.dataset.logoCategory === categoria;
+        button.classList.toggle('active', ativa);
+        button.setAttribute('aria-selected', ativa ? 'true' : 'false');
+        button.tabIndex = ativa ? 0 : -1;
+      });
+      const note = document.getElementById('team-logo-category-note');
+      if (note) {
+        note.dataset.i18n = categoria === 'nba' ? 'nbaLogosHint' : 'originalLogosHint';
+        note.textContent = tr(note.dataset.i18n);
+      }
+    }
+
+    function selecionarCategoriaLogo(categoria, selecionarPrimeiraSeNecessario = true) {
+      if (!window.HBAUserLogos) return false;
+      const categoriaNormalizada = categoria === 'nba' ? 'nba' : 'originais';
+      game.userLogoCategory = categoriaNormalizada;
+      storageSet('hba_user_logo_category', categoriaNormalizada);
+      const logosDaCategoria = window.HBAUserLogos.listarPorCategoria(categoriaNormalizada);
+      const atual = window.HBAUserLogos.obterPorId(game.userLogoId);
+      if (selecionarPrimeiraSeNecessario && (!atual || atual.categoria !== categoriaNormalizada) && logosDaCategoria.length) {
+        game.userLogoId = logosDaCategoria[0].id;
+        game.userLogo = logosDaCategoria[0].src;
+        storageSet('hba_user_logo_id', game.userLogoId);
+      }
+      atualizarBotoesCategoriaLogo();
+      renderizarOpcoesLogoUsuario();
+      atualizarLogoUsuarioNaInterface();
+      return true;
+    }
+
+    function renderizarOpcoesLogoUsuario() {
+      const grid = document.getElementById('team-logo-grid');
+      if (!grid || !window.HBAUserLogos) return;
+      const categoria = game.userLogoCategory === 'nba' ? 'nba' : 'originais';
+      const logos = window.HBAUserLogos.listarPorCategoria(categoria);
+      grid.innerHTML = '';
+      logos.forEach(function(logo) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'team-logo-option';
+        button.dataset.logoId = logo.id;
+        button.setAttribute('role', 'radio');
+        button.setAttribute('aria-label', logo.nome);
+        button.title = logo.nome;
+
+        const image = document.createElement('img');
+        image.src = logo.src;
+        image.alt = '';
+        image.loading = 'lazy';
+        image.decoding = 'async';
+        image.referrerPolicy = 'no-referrer';
+
+        image.addEventListener('error', function() {
+          // Não exibe siglas ou caixas substitutas. Uma opção sem imagem válida
+          // é removida da grade para manter a seleção visual limpa.
+          button.classList.add('logo-unavailable');
+          button.hidden = true;
+          button.disabled = true;
+        });
+        image.addEventListener('load', function() {
+          button.classList.remove('logo-unavailable');
+          button.hidden = false;
+          button.disabled = false;
+        });
+
+        button.appendChild(image);
+        button.addEventListener('click', function() { selecionarLogoUsuario(logo.id); });
+        button.addEventListener('keydown', function(event) {
+          if (!['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(event.key)) return;
+          event.preventDefault();
+          const options = Array.from(grid.querySelectorAll('.team-logo-option'));
+          const current = options.indexOf(button);
+          const step = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : -1;
+          const next = options[(current + step + options.length) % options.length];
+          if (next) { next.focus(); next.click(); }
+        });
+        grid.appendChild(button);
+      });
+      atualizarBotoesCategoriaLogo();
+      selecionarLogoUsuario(game.userLogoId);
+    }
+
+    function abrirEtapaLogo() {
+      const input = document.getElementById('welcome-team-name');
+      const status = document.getElementById('welcome-start-status');
+      const nome = String(input && input.value || '').replace(/\s+/g, ' ').trim().slice(0, 25);
+      if (!nome) {
+        if (status) status.textContent = tr('nameRequired');
+        if (input) input.focus();
+        return false;
+      }
+      definirNomeUsuario(nome);
+      if (status) status.textContent = '';
+      document.getElementById('welcome-name-step').classList.add('hidden');
+      document.getElementById('welcome-logo-step').classList.remove('hidden');
+      const selected = document.querySelector('.team-logo-option.selected');
+      if (selected) selected.focus();
+      return true;
+    }
+
+    function voltarEtapaNome() {
+      document.getElementById('welcome-logo-step').classList.add('hidden');
+      document.getElementById('welcome-name-step').classList.remove('hidden');
+      const input = document.getElementById('welcome-team-name');
+      if (input) input.focus();
+    }
+
     function iniciarLegado(event) {
       if (event && typeof event.preventDefault === 'function') event.preventDefault();
       if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
@@ -129,11 +278,24 @@
       const status = document.getElementById('welcome-start-status');
       const button = document.getElementById('welcome-start-button');
       const nomeDigitado = String(input && input.value || '').replace(/\s+/g, ' ').trim().slice(0, 25);
+      const logoSelecionado = obterLogoUsuarioSelecionado();
+      if (!nomeDigitado) {
+        game._iniciandoLegado = false;
+        if (status) status.textContent = tr('nameRequired');
+        voltarEtapaNome();
+        return false;
+      }
+      if (!logoSelecionado) {
+        game._iniciandoLegado = false;
+        if (status) status.textContent = tr('logoSelectionTitle');
+        return false;
+      }
 
       game._iniciandoLegado = true;
       game.fase = 'DRAFT';
       if (window.HBAAudio) window.HBAAudio.iniciarTrilha();
-      definirNomeUsuario(nomeDigitado || tr('defaultTeam'));
+      definirNomeUsuario(nomeDigitado);
+      selecionarLogoUsuario(logoSelecionado.id);
 
       if (button) {
         button.disabled = true;
@@ -708,7 +870,7 @@
       }
 
       try {
-        const liga = await HBAService.gerarLigaTemporada(game.userName, roster);
+        const liga = await HBAService.gerarLigaTemporada(game.userName, roster, game.userLogo);
         if (!liga || !Array.isArray(liga.equipes) || liga.equipes.length !== 6 || !Array.isArray(liga.calendario)) {
           throw new Error('O motor do jogo devolveu uma temporada incompleta.');
         }
@@ -1137,6 +1299,9 @@
       game.draggedDraftPlayer = null;
       limparEstadoArrasteSlots();
       game.userName = tr('defaultTeam');
+      game.userLogoId = storageGet('hba_user_logo_id', 'wolf');
+      game.userLogoCategory = storageGet('hba_user_logo_category', 'originais');
+      game.userLogo = '';
       storageSet('hba_team_name_current', '');
       game.liga = null;
       game.rodadaAtual = 0;
@@ -1159,10 +1324,15 @@
       document.getElementById('end-icon').innerText = '🏀';
       document.getElementById('top-bar').classList.add('hidden');
       document.getElementById('display-team-name').innerText = '--';
+      const displayTeamLogo = document.getElementById('display-team-logo');
+      if (displayTeamLogo) { displayTeamLogo.src = ''; displayTeamLogo.hidden = true; }
       document.getElementById('team-ovr').innerText = '--';
       document.getElementById('team-conference').innerText = '--';
       document.getElementById('spin-count').innerText = '2';
       document.getElementById('welcome-team-name').value = '';
+      document.getElementById('welcome-logo-step').classList.add('hidden');
+      document.getElementById('welcome-name-step').classList.remove('hidden');
+      selecionarLogoUsuario(game.userLogoId);
       const welcomeStartButton = document.getElementById('welcome-start-button');
       if (welcomeStartButton) {
         welcomeStartButton.disabled = false;
@@ -1352,6 +1522,9 @@
     window.resetarJogo = resetarJogo;
     window.alternarTema = alternarTema;
     window.definirIdioma = definirIdioma;
+    window.abrirEtapaLogo = abrirEtapaLogo;
+    window.selecionarLogoUsuario = selecionarLogoUsuario;
+    window.selecionarCategoriaLogo = selecionarCategoriaLogo;
 
     function vincularUmaVez(elemento, evento, handler, chave) {
       if (!elemento) return;
@@ -1363,8 +1536,17 @@
 
     function registrarControlesInterface() {
       const welcomeButton = document.getElementById('welcome-start-button');
+      const welcomeLogoNext = document.getElementById('welcome-logo-next');
+      const welcomeLogoBack = document.getElementById('welcome-logo-back');
       const welcomeInput = document.getElementById('welcome-team-name');
 
+      vincularUmaVez(welcomeLogoNext, 'click', abrirEtapaLogo, 'LogoNext');
+      vincularUmaVez(welcomeLogoBack, 'click', voltarEtapaNome, 'LogoBack');
+      document.querySelectorAll('[data-logo-category]').forEach(function(button, indice) {
+        vincularUmaVez(button, 'click', function() {
+          selecionarCategoriaLogo(button.dataset.logoCategory, true);
+        }, `LogoCategory${indice}`);
+      });
       vincularUmaVez(welcomeButton, 'click', iniciarLegado, 'Start');
       if (welcomeButton) {
         welcomeButton.dataset.starting = welcomeButton.dataset.starting || 'false';
@@ -1374,7 +1556,12 @@
       vincularUmaVez(welcomeInput, 'keydown', function(event) {
         if (event.key !== 'Enter') return;
         event.preventDefault();
-        if (welcomeButton) welcomeButton.click();
+        const logoStep = document.getElementById('welcome-logo-step');
+        if (logoStep && !logoStep.classList.contains('hidden')) {
+          if (welcomeButton) welcomeButton.click();
+        } else if (welcomeLogoNext) {
+          welcomeLogoNext.click();
+        }
       }, 'Enter');
 
       vincularUmaVez(document.getElementById('language-pt'), 'click', function() { definirIdioma('pt'); }, 'LanguagePt');
@@ -1439,7 +1626,7 @@
       const startButton = document.getElementById('welcome-start-button');
       const startStatus = document.getElementById('welcome-start-status');
 
-      if (!window.HBAService || !window.HBAEngine || !window.HBADatabase) {
+      if (!window.HBAService || !window.HBAEngine || !window.HBADatabase || !window.HBAUserLogos) {
         const mensagem = 'Falha ao carregar o banco ou o motor do HBA Legacy.';
         console.error(mensagem);
         if (startButton) startButton.disabled = true;
@@ -1456,9 +1643,14 @@
         return;
       }
 
+      const logoInicial = window.HBAUserLogos.obterPorId(game.userLogoId);
+      if (logoInicial && logoInicial.categoria) game.userLogoCategory = logoInicial.categoria;
+      atualizarBotoesCategoriaLogo();
+      renderizarOpcoesLogoUsuario();
       registrarControlesInterface();
       registrarFallbacksDeImagem();
       configurarSlotsArrastaveis();
+      atualizarLogoUsuarioNaInterface();
 
       if (game._interfaceInicializada) return;
       game._interfaceInicializada = true;

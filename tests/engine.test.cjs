@@ -26,6 +26,7 @@ vm.createContext(context);
 for (const relative of [
   'js/data/database.js',
   'js/data/assets.js',
+  'js/data/user-logos.js',
   'js/core/engine.js',
   'js/core/service.js',
   'js/core/lineup.js',
@@ -75,9 +76,35 @@ test('database is structurally valid and preserves expected totals', () => {
   assert.equal(report.valido, true);
   assert.equal(report.totalEquipesHistoricas, 127);
   assert.equal(report.totalFranquias, 33);
-  assert.equal(report.totalJogadores, 179);
+  assert.equal(report.totalJogadores, 153);
+  assert.equal(report.totalPerfisOriginais, 179);
+  assert.equal(report.totalAliases, 26);
+  assert.equal(report.totalAparicoesHistoricas, 701);
   assert.equal(report.erros.length, 0);
   assert.equal(report.avisos.length, 0);
+});
+
+test('player aliases are canonicalized without removing historical appearances', () => {
+  const aliases = database.aliases;
+  assert.equal(Object.keys(aliases).length, 26);
+  assert.equal(database.equipes.reduce((total, team) => total + team.elenco.length, 0), 701);
+
+  const legacyNames = new Set(Object.keys(aliases));
+  const rosterNames = database.equipes.flatMap((team) => team.elenco.map((player) => player.nome));
+  for (const name of rosterNames) assert.equal(legacyNames.has(name), false, `Alias remained in roster: ${name}`);
+
+  assert.equal(database.nomeCanonico('SethMacTravish'), 'Seth.MacTravish');
+  assert.equal(database.nomeCanonico('Cironeto.'), 'CiroNeto.');
+  assert.equal(database.nomeCanonico('hazmitboy'), 'hazmitBoy');
+  assert.equal(database.nomeCanonico('Durval'), 'durvalx');
+});
+
+test('user logo is preserved in the generated league', () => {
+  const logo = 'assets/team-logos/wolf.png';
+  const league = engine.gerarLigaTemporada('Lobos HBA', createUserRoster(), logo);
+  const user = league.equipes.find((team) => team.usuario);
+  assert.equal(user.logo, logo);
+  assert.equal(user.sigla, 'LH');
 });
 
 test('every historical franchise has a visual mapping or alias', () => {

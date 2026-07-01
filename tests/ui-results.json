@@ -1,5 +1,20 @@
 [
   {
+    "test": "Fluxo de entrada",
+    "status": "PASS",
+    "detail": "Nome do time abre a etapa de seleção com 12 escudos neutros e Iniciar Legado dispara um único primeiro sorteio"
+  },
+  {
+    "test": "Escudo do jogador",
+    "status": "PASS",
+    "detail": "Logo escolhido é salvo, exibido no cabeçalho e preservado na equipe USER durante a liga"
+  },
+  {
+    "test": "Integridade do banco",
+    "status": "PASS",
+    "detail": "127 equipes, 701 aparições, 179 perfis originais, 153 identidades canônicas e 26 aliases"
+  },
+  {
     "test": "Compatibilidade de posições",
     "status": "PASS",
     "detail": "PG/SG/SF para Armador; SF/PF para Wing; PF/C para Big; qualquer posição para 4th Man"
@@ -7,31 +22,16 @@
   {
     "test": "Movimento para vaga compatível vazia",
     "status": "PASS",
-    "detail": "PF movido de Wing para Big sem mutar o elenco original"
-  },
-  {
-    "test": "Bloqueio de movimento incompatível",
-    "status": "PASS",
-    "detail": "PF não pode ser movido para Armador"
+    "detail": "PF movido de Wing para Big sem remover o jogador da quadra"
   },
   {
     "test": "Troca compatível entre vagas ocupadas",
     "status": "PASS",
-    "detail": "Dois PF podem trocar entre Wing e Big"
-  },
-  {
-    "test": "Troca incompatível entre vagas ocupadas",
-    "status": "PASS",
-    "detail": "PF e C não trocam entre Wing e Big quando o C ficaria em Wing"
-  },
-  {
-    "test": "Overall nos slots",
-    "status": "PASS",
-    "detail": "Markup e renderização incluídos para quadra e 4th Man"
+    "detail": "Dois jogadores só trocam quando ambos podem cumprir as funções invertidas"
   },
   {
     "test": "Validação completa",
     "status": "PASS",
-    "detail": "16 testes automatizados e sintaxe de todos os scripts"
+    "detail": "18 testes automatizados, sintaxe de todos os scripts e referências locais sem arquivos ausentes"
   }
 ]
